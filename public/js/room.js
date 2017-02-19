@@ -47,26 +47,27 @@ $( document ).ready(function() {
 	    }
 	);
 	
-    var room = window.location.pathname.match(/([^\/]*)\/*$/)[1];
-	meeting.joinRoom(room);
-
+    //var room = window.location.pathname.match(/([^\/]*)\/*$/)[1];
+    meeting.joinRoom();
 }); // end of document.ready
 
 function addRemoteVideo(stream, participantID) {
-	console.log("Room.addRemoteVideo"+stream);
+	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
     var $videoBox = $("<div class='videoWrap' id='"+participantID+"'></div>");
     var $video = $("<video class='videoBox' autoplay></video>");
     $video.attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
     $videoBox.append($video);
 	$("#videosWrapper").append($videoBox);
-
-	adjustVideoSize();
-	
+	adjustVideoSize();	
 }
 
 function removeRemoteVideo(participantID) {
 	$("#"+participantID).remove();
 	adjustVideoSize();
+}
+
+function next() {
+	meeting.next();
 }
 
 function adjustVideoSize() {
