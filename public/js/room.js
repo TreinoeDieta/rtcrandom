@@ -53,7 +53,11 @@ $( document ).ready(function() {
 
 function addRemoteVideo(stream, participantID) {
 	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
-    var $videoBox = $("<div class='videoWrap' id='"+participantID+"'></div>");
+    
+    // Remove old videobox
+    $( "#remote-video" ).remove();
+    
+    var $videoBox = $("<div class='videoWrap' id='remote-video'></div>");
     var $video = $("<video class='videoBox' autoplay></video>");
     $video.attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
     $videoBox.append($video);
@@ -62,7 +66,7 @@ function addRemoteVideo(stream, participantID) {
 }
 
 function removeRemoteVideo(participantID) {
-	$("#"+participantID).remove();
+	$( "#remote-video" ).remove();
 	adjustVideoSize();
 }
 
@@ -72,44 +76,10 @@ function next() {
 
 function adjustVideoSize() {
 	var numOfVideos = $(".videoWrap").length; 
-	if (numOfVideos>2) {
-		var $container = $("#videosWrapper");
-		var newWidth;
-		for (var i=1; i<=numOfVideos; i++) {
-			newWidth = $container.width()/i;
-			
-			// check if we can start a new row
-			var scale = newWidth/$(".videoWrap").width();
-			var newHeight = $(".videoWrap").height()*scale;
-			var columns = Math.ceil($container.width()/newWidth);
-			var rows = numOfVideos/columns;
-			
-			if ((newHeight*rows) <= $container.height()) {
-				break;
-			}
-		}
-		
-		var percent = (newWidth/$container.width())*100;
-		$(".videoWrap").css("width", percent-5+"%");
-		$(".videoWrap").css("height", "auto"); 
-
-		
-		//var numOfColumns = Math.ceil(Math.sqrt(numOfVideos));
-		var numOfColumns;
-		for (var i=2; i<=numOfVideos; i++) {
-			if (numOfVideos % i === 0) {
-				numOfColumns = i;
-				break;
-			}
-		}
-	    $('#videosWrapper').find("br").remove();
-		$('.videoWrap:nth-child('+numOfColumns+'n)').after("<br>");
-	} else if (numOfVideos == 2) {
+	if (numOfVideos == 2) {
 		$(".videoWrap").width('auto');
 		$("#localVideoWrap").css("width", 20+"%");
-		$('#videosWrapper').find("br").remove();
 	} else {
 		$("#localVideoWrap").width('auto');
-		$('#videosWrapper').find("br").remove();
 	}
 }

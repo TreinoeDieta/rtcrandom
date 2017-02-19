@@ -37,7 +37,9 @@ var Meeting = function (socketioHost) {
 	 *
 	 * @param name of the room to join
 	 */   
-    function joinRoom(name) {    
+    function joinRoom(name) { 
+        _remoteStream = null;
+        
         if (_myID) {
             // Exit any existing room
             _defaultChannel.emit('message',{type: 'bye', from:_myID});
@@ -458,7 +460,7 @@ var Meeting = function (socketioHost) {
         
         delete _haveLocalOffer[from];
         
-        joinRoom();
+        next();
     }
 
 
@@ -478,6 +480,9 @@ var Meeting = function (socketioHost) {
         console.log('ICE connection state change on OPC:'+_opc.iceConnectionState);
         if(_opc.iceConnectionState == 'disconnected') {
             console.log('Disconnected on _opc');
+        } else if(_opc.iceConnectionState == 'failed') {
+            console.log('Failed on _opc');
+            next();          
         }
     }
     
@@ -485,6 +490,9 @@ var Meeting = function (socketioHost) {
         console.log('ICE connection state change on APC:'+_apc.iceConnectionState);
         if(_apc.iceConnectionState == 'disconnected') {
             console.log('Disconnected on _apc');
+        } else if(_apc.iceConnectionState == 'failed') {
+            console.log('Failed on _apc');
+            next();
         }
     }
     

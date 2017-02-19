@@ -90,6 +90,15 @@ io.sockets.on('connection', function (socket){
 	    socket.emit('log', array);
 	}
 
+    socket.on('disconnect',function(){
+        console.log('User disconnected from room '+ socket.room);
+        
+        delete users[socket.room];
+        delete occupied[socket.room];
+        
+        //socket.broadcast.to(socket.room).emit('message', { type: 'bye', from: socket.room });
+    });
+    
 	socket.on('message', function (message) {
 		console.log('Got message: ' , message, ' in room '+socket.room);
         socket.broadcast.to(socket.room).emit('message', message);
@@ -133,6 +142,12 @@ io.sockets.on('connection', function (socket){
 				next = user;
 				break;
 			}
+            
+            // Clear also empty rooms
+            if (io.sockets.clients(user).length == 0) {
+                delete users[user];
+                delete occupied[user];
+            }
 		}
 		
 		if (next) {
@@ -191,3 +206,4 @@ io.sockets.on('connection', function (socket){
     }
 
 });
+
