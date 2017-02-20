@@ -10,12 +10,6 @@
  
 module.exports=function(app, socketIoServer) {
     app.get('/',function(req,res){
-        res.render('home');
-    });
-    
-    app.get('/:path',function(req,res){
-        var path = req.params.path;
         res.render('room', {"hostAddress":socketIoServer});  
     });
-    
 }
