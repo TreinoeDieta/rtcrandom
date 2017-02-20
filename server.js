@@ -9,10 +9,7 @@
 var nodestatic = require('node-static');
 var express = require('express');
 var path = require('path');
-// var crypto = require('crypto'); // Uncomment for development only. Openshift already provides SSL certificates.
-// var fs = require("fs"); // Uncomment for development only. Openshift already provides SSL certificates.
 var http = require("http");
-// var https = require('https'); // Uncomment for development only. Openshift already provides SSL certificates.
 var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337 // $OPENSHIFT_NODEJS_PORT is given by OpenShift
 var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '192.168.0.104' // $OPENSHIFT_NODEJS_IP is given by OpenShift
 var socketIoServer = process.env.OPENSHIFT_DOMAIN || '192.168.0.104';
@@ -35,20 +32,6 @@ app.set('view engine', 'ejs');
 
 // Tell Server that we are actually rendering HTML files through EJS.
 app.engine('html', require('ejs').renderFile);
-
-////////////////////////////////////////////////
-// Uncomment for development only. Openshift already provides SSL certificates.
-////////////////////////////////////////////////
-// openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
-// openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out server.crt
-//var options = {
-//      key: fs.readFileSync('key.pem', 'utf8'),
-//      cert: fs.readFileSync('server.crt', 'utf8')
-//   };
-//
-//var server = https.createServer(options, app).listen(serverPort);
-////////////////////////////////////////////////
-
 
 var server=app.listen(serverPort, serverIpAddress, function(){
     console.log("Express is running on port "+serverPort);
