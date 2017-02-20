@@ -38,14 +38,14 @@ app.engine('html', require('ejs').renderFile);
 
 // openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
 // openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out server.crt
-var options = {
-      key: fs.readFileSync('key.pem', 'utf8'),
-      cert: fs.readFileSync('server.crt', 'utf8')
-   };
+//var options = {
+//      key: fs.readFileSync('key.pem', 'utf8'),
+//      cert: fs.readFileSync('server.crt', 'utf8')
+//   };
+//
+//var server = https.createServer(options, app).listen(serverPort);
 
-var server = https.createServer(options, app).listen(serverPort);
-
-
+var server = https.createServer(app).listen(serverPort);
 var io = require('socket.io').listen(server, { log: false });
 
 ////////////////////////////////////////////////
