@@ -15,7 +15,7 @@ var http = require("http");
 var https = require('https');
 var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337
 var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '192.168.0.104'
-var socketIoServer = '192.168.0.104';
+var socketIoServer = process.env.OPENSHIFT_DOMAIN || '192.168.0.104';
 
 ////////////////////////////////////////////////
 // SETUP SERVER
