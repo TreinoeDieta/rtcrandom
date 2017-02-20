@@ -1,7 +1,7 @@
 {
-    "name": "foobubble",
+    "name": "rtcrandom",
     "version": "0.0.1",
-    "description": "webrtc description",
+    "description": "webrtc random chat",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"

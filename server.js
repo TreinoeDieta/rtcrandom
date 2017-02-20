@@ -13,8 +13,8 @@ var crypto = require('crypto');
 var fs = require("fs");
 var http = require("http");
 var https = require('https');
-var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337
-var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '192.168.0.104'
+var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337 // $OPENSHIFT_NODEJS_PORT is given by OpenShift
+var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '192.168.0.104' // $OPENSHIFT_NODEJS_IP is given by OpenShift
 var socketIoServer = process.env.OPENSHIFT_DOMAIN || '192.168.0.104';
 
 ////////////////////////////////////////////////
@@ -45,7 +45,9 @@ app.engine('html', require('ejs').renderFile);
 //
 //var server = https.createServer(options, app).listen(serverPort);
 
-var server = https.createServer(app).listen(serverPort);
+var server=app.listen(serverPort, serverIpAddress, function(){
+    console.log("Express is running on port "+serverPort);
+});
 var io = require('socket.io').listen(server, { log: false });
 
 ////////////////////////////////////////////////
