@@ -12,4 +12,8 @@ module.exports=function(app, socketIoServer) {
     app.get('/',function(req,res){
         res.render('room', {"hostAddress":socketIoServer});  
     });
+	
+	app.get('/test',function(req,res){
+        res.render('test');  
+    });
 }

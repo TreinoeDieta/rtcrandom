@@ -11,8 +11,8 @@ var express = require('express');
 var path = require('path');
 var http = require("http");
 var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337 // $OPENSHIFT_NODEJS_PORT is given by OpenShift
-var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '192.168.0.104' // $OPENSHIFT_NODEJS_IP is given by OpenShift
-var socketIoServer = process.env.OPENSHIFT_DOMAIN || '192.168.0.104';
+var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1' // $OPENSHIFT_NODEJS_IP is given by OpenShift
+var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1';
 
 ////////////////////////////////////////////////
 // SETUP SERVER
