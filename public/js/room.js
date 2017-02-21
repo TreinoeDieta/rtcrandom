@@ -53,15 +53,7 @@ $( document ).ready(function() {
 
 function addRemoteVideo(stream, participantID) {
 	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
-    
-    // Remove old videobox
-    $( "#remote-video" ).remove();
-    
-    var $videoBox = $("<div class='videoWrap' id='remote-video'></div>");
-    var $video = $("<video class='videoBox' autoplay></video>");
-    $video.attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
-    $videoBox.append($video);
-	$("#videosWrapper").append($videoBox);
+    $( "#remoteVideo" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	adjustVideoSize();	
 }
 
