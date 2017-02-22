@@ -1,43 +1,77 @@
-html, body {
-	height: 100%;
+@font-face { font-family: 'Linux Libertine'; font-style: normal; font-weight: 400; src: local('Linux Libertine'),url(//brick.a.ssl.fastly.net/fonts/linuxlibertine/400.woff) format('woff'); } .fa-wikipedia:before { font-family: 'Linux Libertine', 'Times New Roman', Times, serif; font-weight: 400; content: "W"; }
+
+
+html,body {
+	height:100%;
+	margin:0;
+    padding:0;
+    font-family: "Open sans", sans-serif;
 }
+
 body {
-	background-color: #F6F6F6;
-	box-sizing: border-box;
+	background-color:#F6F6F6;
+	box-sizing:border-box;
 }
+
+#container {
+	height: calc(100% - 8em); /* 5em = #header height*/
+}
+
 .split {
-	-webkit-box-sizing: border-box;
-	   -moz-box-sizing: border-box;
-			box-sizing: border-box;
-	overflow-y: auto;
-	overflow-x: hidden;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	overflow-y:auto;
+	overflow-x:hidden;
 }
+
 .content {
-	border: 1px solid #C0C0C0;
-	box-shadow: inset 0 1px 2px #e4e4e4;
-	background-color: #fff;
+	border:1px solid silver;
+	box-shadow:inset 0 1px 2px #e4e4e4;
+	background-color:#fff;
 }
 
 .content.split-content-left {
-	background-color: #29bbff;
+	background-color:#29bbff;
 }
 
 .gutter {
-	background-color: transparent;
-	background-repeat: no-repeat;
-	background-position: 50%;
+	background-color:transparent;
+	background-repeat:no-repeat;
+	background-position:50%;
 }
+
 .gutter.gutter-horizontal {
-	cursor: col-resize;
-	background-image: url('../images/grip-vertical.png');
+	cursor:col-resize;
+	background-image:url(../images/grip-vertical.png);
 }
+
 .gutter.gutter-vertical {
-	cursor: row-resize;
-	background-image: url('../images/grip-horizontal.png');
+	cursor:row-resize;
+	background-image:url(../images/grip-horizontal.png);
 }
-.split.split-horizontal, .gutter.gutter-horizontal {
-	height: 100%;
-	float: left;
+
+.split.split-horizontal,.gutter.gutter-horizontal {
+	height:100%;
+	float:left;
+}
+
+/********************** HEADER **************************/
+
+#header {
+	position:relative;
+	background:#F6F6F6;
+	padding:1em;
+	height:5em;
+	box-sizing:border-box;
+}
+
+/********************** FOOTER **************************/
+
+footer {
+	text-align: center;
+	height: 3em;
+	line-height: 3em;
 }
 
 /********************** VIDEO ELEMENTS **************************/
@@ -76,57 +110,58 @@ video {
 
 /********************** CHAT ELEMENTS **************************/
 #chat {
-    position:relative;
-    vertical-align: bottom;
+	position:relative;
+	vertical-align:bottom;
 	width:100%;
-    height:100%;
+	height:100%;
 	-webkit-transition:.1s ease-in-out;
 	-moz-transition:.1s ease-in-out;
 	transition:.1s ease-in-out;
-    overflow: hidden;
+	overflow:hidden;
 }
 
 #chatMessages {
-    position:absolute;
-    top:0;
-    width:100%;
-    overflow-y: auto;
-    background-color: #fcfcfc;
-    border-bottom: 1px #e8e8e8 solid;
+	position:absolute;
+	top:0;
+	width:100%;
+	height:100%;
+	overflow-y:scroll;
+	background-color:#fcfcfc;
+	border-bottom:1px #e8e8e8 solid;
 }
 
 #dataChannelSend {
-    border: 0;
-    height:50px;
-    width: 100%;
-    padding: 1em;
-    font-size: 1em;
-    font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
-    font-weight: 300;
-    color: #383838;
-    background-color: #FEFEFE;
-    border-radius: 0px;
-    transition: all 0.3s ease-in-out 0s;
-    -webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
+	border:0;
+	height:50px;
+	width:100%;
+	padding:1em;
+	font-size:1em;
+	font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+	font-weight:300;
+	color:#383838;
+	background-color:#FEFEFE;
+	border-radius:0;
+	transition:all .3s ease-in-out 0;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-ms-box-sizing:border-box;
+	box-sizing:border-box;
 }
 
 #chat.visible #dataChannelSend {
-	padding: 1em;
+	padding:1em;
 }
 
 /* Container that holds the name, the avatar and the message */
 .messageWrapper {
 	display:table;
-	position: relative;
-    max-width: 60%;
-    margin:20px;
-    font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
-    font-weight: 300;
-    color: #1f1f1f;
-    font-size: 0.8em;
+	position:relative;
+	max-width:60%;
+	margin:20px;
+	font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+	font-weight:300;
+	color:#1f1f1f;
+	font-size:.8em;
 }
 
 .messageWrapper.right {
@@ -138,102 +173,100 @@ video {
 }
 
 .bubbleCell {
-	display: table-cell;
-	vertical-align: middle;
-	text-align: center;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
 	width:80%;
-	padding:0 1em 0 1em;
+	padding:0 1em;
 }
 
 .bubbleCell.right {
-	text-align: right;	
+	text-align:right;
 }
 
 .bubbleCell.left {
-	text-align: left;	
+	text-align:left;
 }
 
 .bubble {
-	position: relative;
-    display: inline-block;
-    padding:0.3em;
-    background: #f2f2f2;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+	position:relative;
+	display:inline-block;
+	padding:.3em;
+	background:#f2f2f2;
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	border-radius:5px;
 }
 
 .bubble:after {
-    content: '';
-    position: absolute;
-    border-style: solid;
-    border-color: transparent #f2f2f2;
-    display: block;
-    width: 0;
-    top:calc(50% - 6px);
+	content:'';
+	position:absolute;
+	border-style:solid;
+	border-color:transparent #f2f2f2;
+	display:block;
+	width:0;
+	top:calc(50% - 6px);
 }
 
 .bubble.right:after {
-    border-width: 6px 0 6px 5px;
-    right: -5px;
+	border-width:6px 0 6px 5px;
+	right:-5px;
 }
 
 .bubble.left:after {
-    border-width: 6px 5px 6px 0;
-    left: -5px;
+	border-width:6px 5px 6px 0;
+	left:-5px;
 }
 
 .bubbleContent {
-    white-space: pre-wrap;       
-    white-space: -moz-pre-wrap;  
-    white-space: -pre-wrap; 
-    white-space: -o-pre-wrap;
-    word-wrap: break-word;
+	white-space:pre-wrap;
+	white-space:-moz-pre-wrap;
+	white-space:-pre-wrap;
+	white-space:-o-pre-wrap;
+	word-wrap:break-word;
 }
 
 /******* AVATAR ICONS IN MESSAGE BOX *******/
 .avatarCell {
-	display: table-cell;
-	vertical-align: middle;
-	text-align: center;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
 	width:20%;
 }
 
 .avatar {
 	width:36px;
 	height:36px;
-	border-radius: 18px;
-	background-color: #f2f2f2;
-	display: inline-block;
-	
-		
-	background-repeat: no-repeat;
-	-webkit-background-size: contain;
-	-moz-background-size: contain;
-	-o-background-size: contain;
+	border-radius:18px;
+	background-color:#f2f2f2;
+	display:inline-block;
+	background-repeat:no-repeat;
+	-webkit-background-size:contain;
+	-moz-background-size:contain;
+	-o-background-size:contain;
 	background-size:contain;
 }
 
 .avatar.chatIcon-1 {
-	background-image: url(../images/avatars/1.png); 
+	background-image:url(../images/avatars/1.png);
 }
 
 .avatar.chatIcon-2 {
-	background-image: url(../images/avatars/2.png); 
+	background-image:url(../images/avatars/2.png);
 }
 
 .avatar.chatIcon-3 {
-	background-image: url(../images/avatars/3.png); 
+	background-image:url(../images/avatars/3.png);
 }
 
 .avatar.chatIcon-4 {
-	background-image: url(../images/avatars/4.png); 
+	background-image:url(../images/avatars/4.png);
 }
 
 .avatar.chatIcon-5 {
-	background-image: url(../images/avatars/5.png); 
+	background-image:url(../images/avatars/5.png);
 }
 
 .avatar.chatIcon-6 {
-	background-image: url(../images/avatars/6.png); 
+	background-image:url(../images/avatars/6.png);
 }

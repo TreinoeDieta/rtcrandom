@@ -23,47 +23,53 @@
     <title>Video Conference</title>
 </head>
 <body>
-    <div id="a" class="split split-horizontal">
-      <div id="c" class="split content split-content-left">
-		<div class="videos-wrapper">
-			<div class="video-wrapper-cell">
-				<div id="skype-loader-center">
-					<div class="skype-loader">
-						<div class="dot">
-							<div class="first"></div>
+	<div id="header">Header</div>
+	
+	<div id="container">
+	    <div id="a" class="split split-horizontal">
+	      <div id="c" class="split content split-content-left">
+			<div class="videos-wrapper">
+				<div class="video-wrapper-cell">
+					<div id="skype-loader-center">
+						<div class="skype-loader">
+							<div class="dot">
+								<div class="first"></div>
+							</div>
+	
+							<div class="dot"></div>
+	
+							<div class="dot"></div>
+	
+							<div class="dot"></div>
 						</div>
-
-						<div class="dot"></div>
-
-						<div class="dot"></div>
-
-						<div class="dot"></div>
 					</div>
+	
+					<video class="video-box" id="remote-video" autoplay></video>
 				</div>
-
-				<video class="video-box" id="remote-video" autoplay></video>
 			</div>
-		</div>
-	  </div>
-      <div id="d" class="split content split-content-left">
-		<div class="videos-wrapper">
-			<div class="video-wrapper-cell">
-				<video class="video-box" id="local-video" autoplay></video>
+		  </div>
+	      <div id="d" class="split content split-content-left">
+			<div class="videos-wrapper">
+				<div class="video-wrapper-cell">
+					<video class="video-box" id="local-video" autoplay></video>
+				</div>
 			</div>
-		</div>
-	  </div>
+		  </div>
+	    </div>
+	    
+	    <div id="b" class="split split-horizontal">
+			<div id="e" class="split content">
+				<div id="chat">
+	                <div id="chatMessages"></div>
+				</div> <!-- /chat -->
+			</div>
+			<div id="f" class="split content">
+				<input type="text" disabled id="dataChannelSend" placeholder="Message..."></input>
+				<button type="button" onclick="next()">Next</button>
+			</div>
+	    </div>
+	    
+	    <footer><a href="/version.txt" target="blank">version</a></footer>
     </div>
-    <div id="b" class="split split-horizontal">
-		<div id="e" class="split content">
-			<div id="chat">
-                <div id="chatMessages"></div>
-			</div> <!-- /chat -->
-		</div>
-		<div id="f" class="split content">
-			<input type="text" disabled id="dataChannelSend" placeholder="Message..."></input>
-			<button type="button" onclick="next()">Next</button>
-		</div>
-    </div>
-    <a href="/version.txt">version</a>
 </body>
 </html>
