@@ -7,17 +7,18 @@ html,body {
 
 #left-component {
 	min-width:200px;
-	right:200px; /**/
+	right:80%; /**/
 	margin-right:3px;
 }
 
 #my-divider {
-	right:200px; /**/
+	right:80%; /**/
 	width:3px;
 }
 
 #right-component {
-	width:200px; /**/
+	width:80%; /**/
+	min-width:500px;
 }
 
 #top-component {
