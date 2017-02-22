@@ -578,20 +578,11 @@ var Meeting = function (socketioHost) {
 	}
 	
 	function checkIfOpenChannel() {
-		var open = false;
-	  	for (var channel in _sendChannel) {
-	        if (_sendChannel.hasOwnProperty(channel)) {
-		        open = (_sendChannel.readyState == "open");
-		        if (open == true) {
-			        break;
-		        }
-		    }
-        }
-        
-        return open;
+        return (_sendChannel.readyState == "open");
 	}
 	
 	function enableMessageInterface(shouldEnable) {
+		console.log('Enable message interface '+shouldEnable);
 	    if (shouldEnable) {
 			_onChatReadyCallback();
 	  	} else {

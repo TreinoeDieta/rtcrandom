@@ -6,98 +6,63 @@
     <meta name='description' content='WebRTC Reference App'>
     <meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1'>
     <script type="text/javascript">
-var HOST_ADDRESS='<%= hostAddress %>';
-    </script>
-    <script src='/socket.io/socket.io.js' type="text/javascript">
-</script>
-    <script src='/js/lib/adapter.js' type="text/javascript">
-</script><!--<script src="http://webrtc.github.io/adapter/adapter-latest.js"></script>-->
+		var HOST_ADDRESS='<%= hostAddress %>';
+	</script>
+    <script src='/socket.io/socket.io.js' type="text/javascript" ></script>
+    <script src='/js/lib/adapter.js' type="text/javascript" ></script>
+	<!--<script src="http://webrtc.github.io/adapter/adapter-latest.js"></script>-->
 
-    <script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript">
-</script>
-    <script src='/js/meeting.js' type="text/javascript">
-</script>
-    <script src='/js/room.js' type="text/javascript">
-</script><!-- Split-pane -->
-    <link rel="stylesheet" href="/css/split-pane.css" type="text/css">
-    <script src='/js/split-pane.js' type="text/javascript">
-</script>
+    <script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript" ></script>
+    <script src='/js/meeting.js' type="text/javascript"></script>
+    <script src='/js/room.js' type="text/javascript"></script>
+	
+	<!-- Split-pane -->
+    <script src='/js/lib/split.js' type="text/javascript" ></script>
     <link rel="stylesheet" href="/css/room.css" type="text/css">
     <link rel="stylesheet" href="/css/spinner.css" type="text/css">
-    <script type="text/javascript">
-       $(function() {
-                $('div.split-pane').splitPane();
-            });
-    </script>
-
     <title>Video Conference</title>
 </head>
-
 <body>
-    <div class="pretty-split-pane-frame">
-        <div class="split-pane fixed-right">
-            <div class="split-pane-component" id="left-component">
-                <div class="pretty-split-pane-component-inner">
+    <div id="a" class="split split-horizontal">
+      <div id="c" class="split content split-content-left">
+		<div class="videos-wrapper">
+			<div class="video-wrapper-cell">
+				<div id="skype-loader-center">
+					<div class="skype-loader">
+						<div class="dot">
+							<div class="first"></div>
+						</div>
 
-                    <div id="videos">
-                        <div id="videosWrapper">
-							<div id="remote-video" class="videoWrap">
-	                            <div id="skype-loader-center">
-	                                <div class="skype-loader">
-	                                    <div class="dot">
-	                                        <div class="first"></div>
-	                                    </div>
-	
-	                                    <div class="dot"></div>
-	
-	                                    <div class="dot"></div>
-	
-	                                    <div class="dot"></div>
-	                                </div>
-	                            </div>
-                            
-                            	<video class="videoBox" id="remoteVideo" autoplay></video>
-                            </div>
-                          
+						<div class="dot"></div>
 
-                            <div id="local-video" class="videoWrap">
-                                <video class="videoBox" id="localVideo" autoplay></video>
-                            </div>
-                            
-                            <div id="local-video-controls">test</div>
-                        </div>
-                        
-                    </div><!-- end videos -->
-                    
-                </div>
-            </div>
+						<div class="dot"></div>
 
-            <div class="split-pane-divider" id="my-divider">
-                <div class="split-pane-divider-inner"></div>
-            </div>
+						<div class="dot"></div>
+					</div>
+				</div>
 
-            <div class="split-pane-component" id="right-component">
-                <div class="split-pane fixed-bottom">
-                    <div class="split-pane-component" id="top-component">
-                        <div class="pretty-split-pane-component-inner">
-                            Chat
-                        </div>
-                    </div>
-
-                    <div class="split-pane-divider" id="my-divider-2">
-                        <div class="split-pane-divider-inner"></div>
-                    </div>
-
-                    <div class="split-pane-component" id="bottom-component">
-                        <div class="pretty-split-pane-component-inner">
-                            <button type="button" onclick="next()">Next</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="split-pane-resize-shim" style="display: none;"></div>
-        </div>
+				<video class="video-box" id="remote-video" autoplay></video>
+			</div>
+		</div>
+	  </div>
+      <div id="d" class="split content split-content-left">
+		<div class="videos-wrapper">
+			<div class="video-wrapper-cell">
+				<video class="video-box" id="local-video" autoplay></video>
+			</div>
+		</div>
+	  </div>
+    </div>
+    <div id="b" class="split split-horizontal">
+		<div id="e" class="split content">
+			<div id="chat">
+                <div id="chatMessages"></div>
+			</div> <!-- /chat -->
+		</div>
+		<div id="f" class="split content">
+			<input type="text" disabled id="dataChannelSend" placeholder="Message..."></input>
+			<button type="button" onclick="next()">Next</button>
+		</div>
     </div>
 </body>
 </html>
