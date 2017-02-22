@@ -43,6 +43,7 @@ var io = require('socket.io').listen(server, { log: false });
 ////////////////////////////////////////////////
 var users = {}; // Map of all users currently online to their sockets
 var occupied = {}; // List of users currently in a chat.
+var isReady = {}; // List of users that are ready to create an offer (i.e. have a local stream).
 var history = {}; // Contains (A,B) pairs of previously matched users.
 
 ////////////////////////////////////////////////
@@ -85,7 +86,8 @@ io.sockets.on('connection', function (socket){
         
         delete users[socket.room];
         delete occupied[socket.room];
-        
+        delete isReady[socket.room];
+		
         //socket.broadcast.to(socket.room).emit('message', { type: 'bye', from: socket.room });
     });
     
@@ -111,9 +113,21 @@ io.sockets.on('connection', function (socket){
             
             // Free room
             delete occupied[room];
+			
+			// Is ready
+			delete isReady[message.from];
 		}
 	});
     
+	socket.on('ready', function (message) {
+		console.log('Room '+ message.from +' is ready.');
+		
+		// No longer occupied
+        if (users.hasOwnProperty(message.from)) {
+			isReady[message.from] = '';
+		}
+	});
+	
 	socket.on('next', function (message) {
 		console.log('Next room requested from '+ message.from);
 		
@@ -127,7 +141,7 @@ io.sockets.on('connection', function (socket){
         
 		var next;
 		for (var user in users) {
-			if (message.from !== user && users.hasOwnProperty(user) && !occupied.hasOwnProperty(user) && io.sockets.clients(user).length == 1) {
+			if (message.from !== user && users.hasOwnProperty(user) && isReady.hasOwnProperty(user) && !occupied.hasOwnProperty(user) && io.sockets.clients(user).length == 1) {
 				// Found a free room/user!
 				next = user;
 				break;

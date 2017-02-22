@@ -21,6 +21,7 @@ var Meeting = function (socketioHost) {
     var _myID;
     var _onRemoteVideoCallback;
     var _onLocalVideoCallback;
+	var _onJoinedRoomCallback;
     var _onChatMessageCallback;
     var _onChatReadyCallback;
     var _onChatNotReadyCallback;
@@ -146,7 +147,18 @@ var Meeting = function (socketioHost) {
     function onLocalVideo(callback) {
         _onLocalVideoCallback = callback;
     }
+	
+		/**
+	 *
+	 * Add callback function to be called when local peer joins a room.
+	 *
+	 * @param callback function of type function()
+	 */
+    function onJoinedRoom(callback) {
+        _onJoinedRoomCallback = callback;
+    }
     
+	
     /**
 	 *
 	 * Add callback function to be called when chat is available.
@@ -212,6 +224,7 @@ var Meeting = function (socketioHost) {
 
         defaultChannel.on('joined', function (room){
             console.log('This peer has joined room ' + room);
+			_onJoinedRoomCallback();
         });
         
         defaultChannel.on('message', function (message){
@@ -474,6 +487,8 @@ var Meeting = function (socketioHost) {
         console.log('Adding local stream');
         _onLocalVideoCallback(stream);
         _localStream = stream;
+		
+		_defaultChannel.emit('ready', {from:_myID});
     }
 
     function handleIceConnectionStateChangeOPC(event) {
@@ -708,6 +723,7 @@ var Meeting = function (socketioHost) {
     exports.toggleVideo			= 		toggleVideo;
     exports.onLocalVideo        =       onLocalVideo;
     exports.onRemoteVideo       =       onRemoteVideo;
+	exports.onJoinedRoom		=		onJoinedRoom;
     exports.onChatReady 		= 		onChatReady;
     exports.onChatNotReady 		= 		onChatNotReady;
     exports.onChatMessage       =       onChatMessage;

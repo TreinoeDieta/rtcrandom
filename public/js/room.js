@@ -2,7 +2,8 @@
 
 var meeting;
 var name = 'Stranger';
-var avatar;
+var avatar = 2;
+var occupied = false;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
 
 $( document ).ready(function() {
@@ -42,8 +43,7 @@ $( document ).ready(function() {
 	
 	/////////////////////////////////
 	// CHAT
-	/////////////////////////////////
-	
+	/////////////////////////////////	
 	// Respond to return key in message input box (send message)
     $("#dataChannelSend").on("keydown",function callback(e) {
 	    var value = $(this).val();
@@ -93,12 +93,21 @@ $( document ).ready(function() {
 	    }
 	);
 	
-    meeting.joinRoom();
+	meeting.onJoinedRoom(function() {
+	        joinedRoom();
+	    }
+	);
+	
+	
+	meeting.joinRoom();
 }); // end of document.ready
 
 ////////////////////////////////////////////////////////////////////////////
 // VIDEO
 ////////////////////////////////////////////////////////////////////////////
+function joinedRoom() {
+	occupied = true;
+}
 
 function addRemoteVideo(stream, participantID) {
 	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
@@ -107,11 +116,15 @@ function addRemoteVideo(stream, participantID) {
 }
 
 function removeRemoteVideo(participantID) {
-
+	occupied = false;
 }
 
 function next() {
-	meeting.next();
+	setInterval(function(){ 
+		if (!occupied) {
+			meeting.next();
+		}
+	}, 1000);
 }
 
 function adjustVideoSize() {
