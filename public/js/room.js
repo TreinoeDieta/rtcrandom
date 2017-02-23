@@ -108,7 +108,10 @@ function addRemoteVideo(stream, participantID) {
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
+	
+	// Stop search interval
 	clearInterval(searchRoomIntervalID);
+	searchRoomIntervalID = null;
 }
 
 function removeRemoteVideo(participantID) {
