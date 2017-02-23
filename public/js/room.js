@@ -117,7 +117,11 @@ function removeRemoteVideo(participantID) {
 
 function next() {
 	// Search for a new one
-	meeting.next();
+	setInterval(function(){ 
+		if (!occupied) {
+			meeting.next();
+		}
+	}, 5000);
 }
 
 ////////////////////////////////////////////////////////////////////////////
