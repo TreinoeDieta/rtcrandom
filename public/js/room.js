@@ -118,6 +118,8 @@ function removeRemoteVideo(participantID) {
 	occupied = false;
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
+	
+	searchRoomIntervalID = null;
 	next();
 }
 
