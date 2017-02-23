@@ -84,7 +84,7 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
-        _defaultChannel.emit('next', {from:_myID});
+        _defaultChannel.emit('next', {from:_myID, ready:(_localStream != null)});
     }
 	
     

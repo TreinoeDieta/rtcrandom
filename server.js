@@ -53,7 +53,7 @@ function printUsers() {
     console.log('Users:');
     for (var user in users) {
         if (users.hasOwnProperty(user)) {
-            console.log(user);   
+            console.log(user+' isready='+isReady[user]);
         }
     }    
 }
@@ -62,7 +62,7 @@ function printOccupiedUsers() {
     console.log('Occupied:');
     for (var user in occupied) {
         if (occupied.hasOwnProperty(user)) {
-            console.log(user);   
+            console.log(user+' isready='+isReady[user]);   
         }
     }    
 }
@@ -121,27 +121,31 @@ io.sockets.on('connection', function (socket){
     
 	socket.on('ready', function (message) {
 		console.log('Room '+ message.from +' is ready.');
-		
-		// No longer occupied
+
         if (users.hasOwnProperty(message.from)) {
-			isReady[message.from] = '';
+			isReady[message.from] = true;
 		}
 	});
 	
 	socket.on('next', function (message) {
-		console.log('Next room requested from '+ message.from);
+		console.log('Next room requested from '+ message.from+ '. Peer is in ready state ='+message.ready);
+		
+		var ready = message.ready;
+		isReady[message.from] = ready;
 		
 		// No longer occupied
         var room = occupied[message.from];
 		delete occupied[message.from];
 		delete occupied[room];
         
+		users[message.from] = '';
+		
         printUsers();
         printOccupiedUsers();
         
 		var next;
 		for (var user in users) {
-			if (message.from !== user && users.hasOwnProperty(user) && isReady.hasOwnProperty(user) && !occupied.hasOwnProperty(user) && io.sockets.clients(user).length == 1) {
+			if (message.from !== user && users.hasOwnProperty(user) && (isReady.hasOwnProperty(user) && isReady[user] == true) && !occupied.hasOwnProperty(user) && io.sockets.clients(user).length == 1) {
 				// Found a free room/user!
 				next = user;
 				break;
@@ -156,6 +160,7 @@ io.sockets.on('connection', function (socket){
 		
 		if (next) {
             console.log('Found free room '+next);
+			occupied[next];
 			socket.emit('next', {dest: message.from, room:next});
 		} else {
 			console.log('No free room found.');

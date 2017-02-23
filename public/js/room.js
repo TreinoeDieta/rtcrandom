@@ -5,6 +5,7 @@ var name = 'Stranger';
 var avatar = 2;
 var occupied = false;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
+var searchRoomIntervalID = null;
 
 $( document ).ready(function() {
 	/////////////////////////////////
@@ -107,21 +108,26 @@ function addRemoteVideo(stream, participantID) {
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
+	clearInterval(searchRoomIntervalID);
 }
 
 function removeRemoteVideo(participantID) {
 	occupied = false;
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
+	next();
 }
 
 function next() {
 	// Search for a new one
-	setInterval(function(){ 
-		if (!occupied) {
-			meeting.next();
-		}
-	}, 5000);
+	if (searchRoomIntervalID == null) {
+		console.log('Starting search room interval');
+		searchRoomIntervalID = setInterval(function(){ 
+			if (!occupied) {
+				meeting.next();
+			}
+		}, 1000);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
