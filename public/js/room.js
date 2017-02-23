@@ -3,7 +3,6 @@
 var meeting;
 var name = 'Stranger';
 var avatar = 2;
-var occupied = false;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
 
 $( document ).ready(function() {
@@ -92,13 +91,7 @@ $( document ).ready(function() {
 	);
 	
 	meeting.onNextFailed(function() {
-			// Send next request only when we have got a negative result
-/*
-			setTimeout(function(){ 
-				console.log('Trying next again.');
-				meeting.next();
-			}, 3000);
-*/
+
 	    }
 	);
 	
@@ -120,7 +113,6 @@ function addRemoteVideo(stream, participantID) {
 }
 
 function removeRemoteVideo(participantID) {
-	occupied = false;
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
 }

@@ -496,8 +496,6 @@ var Meeting = function (socketioHost) {
 		_onParticipantHangupCallback(from);
         
         delete _haveLocalOffer[from];
-        
-        next();
     }
 
 
@@ -520,8 +518,7 @@ var Meeting = function (socketioHost) {
         if(_opc.iceConnectionState == 'disconnected') {
             console.log('Disconnected on _opc');
         } else if(_opc.iceConnectionState == 'failed') {
-            console.log('Failed on _opc');
-            next();          
+            console.log('Failed on _opc');        
         }
     }
     
@@ -531,7 +528,6 @@ var Meeting = function (socketioHost) {
             console.log('Disconnected on _apc');
         } else if(_apc.iceConnectionState == 'failed') {
             console.log('Failed on _apc');
-            next();
         }
     }
     
