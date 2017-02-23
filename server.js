@@ -53,7 +53,7 @@ function printUsers() {
     console.log('Users:');
     for (var user in users) {
         if (users.hasOwnProperty(user)) {
-            console.log(user+' isready='+isReady[user]);
+            console.log(user+' isready='+isReady[user]+' users in room='+io.sockets.clients(user).length); 
         }
     }    
 }
@@ -62,7 +62,7 @@ function printOccupiedUsers() {
     console.log('Occupied:');
     for (var user in occupied) {
         if (occupied.hasOwnProperty(user)) {
-            console.log(user+' isready='+isReady[user]);   
+            console.log(user+' isready='+isReady[user]+' users in room='+io.sockets.clients(user).length);   
         }
     }    
 }
@@ -87,8 +87,6 @@ io.sockets.on('connection', function (socket){
         delete users[socket.room];
         delete occupied[socket.room];
         delete isReady[socket.room];
-		
-        //socket.broadcast.to(socket.room).emit('message', { type: 'bye', from: socket.room });
     });
     
 	socket.on('message', function (message) {
@@ -121,7 +119,7 @@ io.sockets.on('connection', function (socket){
     
 	socket.on('ready', function (message) {
 		console.log('Room '+ message.from +' is ready.');
-
+		
         if (users.hasOwnProperty(message.from)) {
 			isReady[message.from] = true;
 		}
@@ -150,7 +148,8 @@ io.sockets.on('connection', function (socket){
 				next = user;
 				break;
 			}
-            
+            //log('Checking if '+user+' is free...nope');
+			
             // Clear also empty rooms
             if (io.sockets.clients(user).length == 0) {
                 delete users[user];
@@ -160,10 +159,12 @@ io.sockets.on('connection', function (socket){
 		
 		if (next) {
             console.log('Found free room '+next);
-			occupied[next];
+			//occupied[message.from] = next;
+			//occupied[next] = message.from; 
 			socket.emit('next', {dest: message.from, room:next});
 		} else {
 			console.log('No free room found.');
+			//log('No free room found.');
 		}
 	});
 
@@ -175,8 +176,7 @@ io.sockets.on('connection', function (socket){
 		configNameSpaceChannel(participantID);
 				
 		users[participantID] = '';
-		
-        
+  
         console.log(participantID + " requested to create/join room "+ room);
 		if (io.sockets.clients(room).length == 0){
             console.log(participantID + " creates room "+ room);

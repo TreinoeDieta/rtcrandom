@@ -213,6 +213,10 @@ var Meeting = function (socketioHost) {
         console.log("Initializing default channel");
         var defaultChannel = openSignalingChannel('');
         
+		defaultChannel.on('log', function (array){
+          console.log(array);
+        });
+		
         defaultChannel.on('created', function (room){
           console.log('Created room ' + room);
           _isInitiator = true;
@@ -220,6 +224,7 @@ var Meeting = function (socketioHost) {
 
         defaultChannel.on('join', function (room){
             console.log('Another peer made a request to join room ' + room);
+			_onJoinedRoomCallback();
         });
 
         defaultChannel.on('joined', function (room){

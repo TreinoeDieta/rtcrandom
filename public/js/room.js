@@ -108,10 +108,6 @@ function addRemoteVideo(stream, participantID) {
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
-	
-	// Stop search interval
-	clearInterval(searchRoomIntervalID);
-	searchRoomIntervalID = null;
 }
 
 function removeRemoteVideo(participantID) {
@@ -119,20 +115,30 @@ function removeRemoteVideo(participantID) {
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
 	
-	searchRoomIntervalID = null;
-	next();
+	startSearch();
 }
 
-function next() {
+function nextClicked() {
+	startSearch();
+}
+
+function startSearch() {
 	// Search for a new one
-	if (searchRoomIntervalID == null) {
-		console.log('Starting search room interval');
-		searchRoomIntervalID = setInterval(function(){ 
-			if (!occupied) {
-				meeting.next();
-			}
-		}, 1000);
-	}
+	occupied = false;
+	clearInterval(searchRoomIntervalID);
+	console.log('Starting search room interval');
+	searchRoomIntervalID = setInterval(function(){ 
+		if (!occupied) {
+			meeting.next();
+		}
+	}, 1000);
+	
+}
+
+function stopSearch() {
+	// Stop search interval
+	clearInterval(searchRoomIntervalID);
+	searchRoomIntervalID = null;
 }
 
 ////////////////////////////////////////////////////////////////////////////
