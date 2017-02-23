@@ -89,7 +89,6 @@ io.sockets.on('connection', function (socket) {
         socket.broadcast.to(socket.room).emit('message', message);
 		
         if (message.type=="newparticipant") {
-            
         }
         
 		if (message.type=="bye") {
@@ -139,8 +138,8 @@ io.sockets.on('connection', function (socket) {
 	        _clients[a].emit('next', {dest: a, room:room, success: true});
 	        _clients[b].emit('next', {dest: b, room:room, success: true});
 	        
-	        delete _clients[a];
-	        delete _clients[b];
+			delete _clients[a];
+			delete _clients[b];
         } else {
 	        console.log('Not enough requests in the queue.');
 	        _clients[message.from].emit('next', {dest: message.from, success: false});

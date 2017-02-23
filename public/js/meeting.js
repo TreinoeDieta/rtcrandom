@@ -29,7 +29,6 @@ var Meeting = function (socketioHost) {
     var _onParticipantHangupCallback;
     var _host = socketioHost;
     var _haveLocalOffer = {};
-    var _haveAnswer = {};
     var _participantID;
     
     ////////////////////////////////////////////////
@@ -252,9 +251,8 @@ var Meeting = function (socketioHost) {
                     // Wait for answers (to offers) from the new participant
                     _offerChannel.on('message', function (msg){
                         if (msg.dest===_myID) {
-                            if (msg.type === 'answer' && !_haveAnswer[partID]) {
+                            if (msg.type === 'answer') {
                                 console.log('Got answer from '+msg.from +' in offer channel');
-                                _haveAnswer[partID] = msg.from;
                                 _opc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
                                                                    setRemoteDescriptionSuccess, 
                                                                    setRemoteDescriptionError);
@@ -500,7 +498,6 @@ var Meeting = function (socketioHost) {
 		_onParticipantHangupCallback(from);
         
         delete _haveLocalOffer[from];
-        delete _haveAnswer[from];
         
     }
 
