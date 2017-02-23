@@ -240,9 +240,9 @@ var Meeting = function (socketioHost) {
             console.log('Received message in default channel:', message);
             var partID = message.from;
             if (message.type === 'newparticipant' && message.from != _myID) {
-                if (!_haveLocalOffer[_room]) {
+                if (!_haveLocalOffer[partID]) {
                     // TODO: Investigate why 'newparticipant' message gets received twice which causes error: 'Cannot call createOffer/setLocalDescription in "have-local-offer" state'
-                    _haveLocalOffer[_room] = partID;
+                    _haveLocalOffer[partID] = partID;
 					
                     // Open a new communication channel to the new participant
                     console.log('Opening a new channel for offers to the new participant');
