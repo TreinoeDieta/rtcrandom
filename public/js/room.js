@@ -5,7 +5,6 @@ var name = 'Stranger';
 var avatar = 2;
 var occupied = false;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
-var searchRoomIntervalID = null;
 
 $( document ).ready(function() {
 	/////////////////////////////////
@@ -92,15 +91,25 @@ $( document ).ready(function() {
 	    }
 	);
 	
+	meeting.onNextFailed(function() {
+			// Send next request only when we have got a negative result
+/*
+			setTimeout(function(){ 
+				console.log('Trying next again.');
+				meeting.next();
+			}, 3000);
+*/
+	    }
+	);
 	
-	meeting.joinRoom();
+	meeting.init();
 }); // end of document.ready
 
 ////////////////////////////////////////////////////////////////////////////
 // VIDEO
 ////////////////////////////////////////////////////////////////////////////
 function joinedRoom() {
-	occupied = true;
+
 }
 
 function addRemoteVideo(stream, participantID) {
@@ -114,32 +123,12 @@ function removeRemoteVideo(participantID) {
 	occupied = false;
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
-	
-	startSearch();
 }
 
 function nextClicked() {
-	startSearch();
+	meeting.next();
 }
 
-function startSearch() {
-	// Search for a new one
-	occupied = false;
-	clearInterval(searchRoomIntervalID);
-	console.log('Starting search room interval');
-	searchRoomIntervalID = setInterval(function(){ 
-		if (!occupied) {
-			meeting.next();
-		}
-	}, 1000);
-	
-}
-
-function stopSearch() {
-	// Stop search interval
-	clearInterval(searchRoomIntervalID);
-	searchRoomIntervalID = null;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 // CHAT

@@ -22,6 +22,7 @@ var Meeting = function (socketioHost) {
     var _onRemoteVideoCallback;
     var _onLocalVideoCallback;
 	var _onJoinedRoomCallback;
+	var _onNextFailedCallback;
     var _onChatMessageCallback;
     var _onChatReadyCallback;
     var _onChatNotReadyCallback;
@@ -32,39 +33,17 @@ var Meeting = function (socketioHost) {
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
     ////////////////////////////////////////////////
- 	 /**
-	 *
-	 * Add callback function to be called when a chat message is available.
-	 *
-	 * @param name of the room to join
-	 */   
-    function joinRoom(name) { 
-        _remoteStream = null;
-        
-        if (_myID) {
-            // Exit any existing room
-            _defaultChannel.emit('message',{type: 'bye', from:_myID});
+    
+    function init() { 
+		if (!_myID) {
+            _myID = generateID();
+            console.log('Generated ID: '+_myID);
         }
-        
-        _myID = generateID();
-		console.log('Generated ID: '+_myID);
-        
-        if (name) {
-            _room = name;       
-        } else {
-            _room = _myID;  
-        }
-        
+
         // Open up a default communication channel
 		_defaultChannel = initDefaultChannel();
-        
-        console.log('Create or join room', _room);
-        _defaultChannel.emit('create or join', {room:_room, from:_myID});
-        
-		// Open up a private communication channel
-		_privateAnswerChannel = initPrivateChannel();
-        
-        
+		
+		        
        // Get local media data
         if (!_localStream) {
             navigator.mediaDevices.getUserMedia(_constraints).then(handleUserMedia, handleUserMediaError);    
@@ -74,6 +53,24 @@ var Meeting = function (socketioHost) {
         window.onbeforeunload = function(e) {
             _defaultChannel.emit('message',{type: 'bye', from:_myID});
         }
+	}
+    
+ 	 /**
+	 *
+	 * Add callback function to be called when a chat message is available.
+	 *
+	 * @param name of the room to join
+	 */   
+    function joinRoom(name) { 
+        _remoteStream = null;
+        
+        _room = name;       
+        
+        console.log('Request to join room', _room);
+        _defaultChannel.emit('join', {room:_room, from:_myID});
+        
+		// Open up a private communication channel
+		_privateAnswerChannel = initPrivateChannel();
                 
     }
     
@@ -84,7 +81,8 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
-        _defaultChannel.emit('next', {from:_myID, ready:(_localStream != null)});
+		_haveLocalOffer = {};
+        _defaultChannel.emit('next', {from:_myID, currentRoom:_room, hasLocalStream:(_localStream != null)});
     }
 	
     
@@ -148,7 +146,7 @@ var Meeting = function (socketioHost) {
         _onLocalVideoCallback = callback;
     }
 	
-		/**
+	/**
 	 *
 	 * Add callback function to be called when local peer joins a room.
 	 *
@@ -158,6 +156,15 @@ var Meeting = function (socketioHost) {
         _onJoinedRoomCallback = callback;
     }
     
+    /**
+	 *
+	 * Add callback function to be called when we got an answer to our 'next' request saying there is no room available.
+	 *
+	 * @param callback function of type function()
+	 */
+    function onNextFailed(callback) {
+        _onNextFailedCallback = callback;
+    }
 	
     /**
 	 *
@@ -222,27 +229,23 @@ var Meeting = function (socketioHost) {
           _isInitiator = true;
         });
 
-        defaultChannel.on('join', function (room){
-            console.log('Another peer made a request to join room ' + room);
-			_onJoinedRoomCallback();
-        });
-
         defaultChannel.on('joined', function (room){
             console.log('This peer has joined room ' + room);
+            defaultChannel.emit('message', {type:'newparticipant', from: _myID});
 			_onJoinedRoomCallback();
         });
         
         defaultChannel.on('message', function (message){
             console.log('Received message in default channel:', message);
             var partID = message.from;
-            if (message.type === 'newparticipant') {
-                if (!_haveLocalOffer.hasOwnProperty(partID)) {
+            if (message.type === 'newparticipant' && message.from != _myID) {
+                if (!_haveLocalOffer[_room]) {
                     // TODO: Investigate why 'newparticipant' message gets received twice which causes error: 'Cannot call createOffer/setLocalDescription in "have-local-offer" state'
-                    _haveLocalOffer[partID] = '';
+                    _haveLocalOffer[_room] = partID;
 
                     // Open a new communication channel to the new participant
                     console.log('Opening a new channel for offers to the new participant');
-                    _offerChannel = openSignalingChannel(partID);
+                    _offerChannel = openSignalingChannel(_room);
 
                     // Wait for answers (to offers) from the new participant
                     _offerChannel.on('message', function (msg){
@@ -274,10 +277,18 @@ var Meeting = function (socketioHost) {
 		
 		defaultChannel.on('next', function (message){
             if (message.dest===_myID) {
-				console.log("Received new room "+message.room);
-				joinRoom(message.room);
-				defaultChannel.emit('message', {type:'newparticipant', from: _myID});
-            }
+	            console.log('Gor answer to our next request: '+message.success);
+	            if (message.success == true) {
+		            console.log("Received new room "+message.room);
+					closeCurrentConnection();
+					joinRoom(message.room);
+	            } else {
+		            console.log("Server couldn't find a free peer.");
+		            _onNextFailedCallback();
+	            }
+            } 
+            
+            
         });
 		
 		
@@ -286,7 +297,7 @@ var Meeting = function (socketioHost) {
       
     function initPrivateChannel() {
         // Open a private channel (namespace = _myID) to receive offers
-        var privateAnswerChannel = openSignalingChannel(_myID);
+        var privateAnswerChannel = openSignalingChannel(_room);
 
         console.log("Initialized private channel at namespace "+privateAnswerChannel.name);
         
@@ -454,8 +465,12 @@ var Meeting = function (socketioHost) {
         _apc.createAnswer(onSuccess(cnl), handleCreateAnswerError);
     }
 
-    function hangup(from) {
-        if (_opc) {
+	function closeCurrentConnection() {
+		if (_room) {
+			_defaultChannel.emit('message',{type: 'bye', from:_myID});	
+		}
+		
+		if (_opc) {
             console.log("Closing _opc");
             _opc.close();
 		    _opc = null;
@@ -473,6 +488,10 @@ var Meeting = function (socketioHost) {
         }
 
         _remoteStream = null;
+	}
+	
+    function hangup(from) {
+		closeCurrentConnection();
      
 		_onParticipantHangupCallback(from);
         
@@ -722,6 +741,7 @@ var Meeting = function (socketioHost) {
     ////////////////////////////////////////////////
     // EXPORT PUBLIC FUNCTIONS
     ////////////////////////////////////////////////
+    exports.init            	=       init;
     exports.joinRoom            =       joinRoom;
 	exports.next            	=       next;
     exports.toggleMic 			= 		toggleMic;
@@ -732,6 +752,7 @@ var Meeting = function (socketioHost) {
     exports.onChatReady 		= 		onChatReady;
     exports.onChatNotReady 		= 		onChatNotReady;
     exports.onChatMessage       =       onChatMessage;
+    exports.onNextFailed		=		onNextFailed;
     exports.sendChatMessage     =       sendChatMessage;
     exports.onParticipantHangup =		onParticipantHangup;
     return exports;

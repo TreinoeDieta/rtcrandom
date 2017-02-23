@@ -5,6 +5,7 @@ var name = 'Stranger';
 var avatar = 2;
 var occupied = false;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
+var searchRoomIntervalID = null;
 
 $( document ).ready(function() {
 	/////////////////////////////////
@@ -14,7 +15,7 @@ $( document ).ready(function() {
 	if (sizes) {
 		sizes = JSON.parse(sizes);
 	} else {
-		sizes = [40, 60];  // default sizes
+		sizes = [80, 20];  // default sizes
 	}
 
 	var split = Split(['#a', '#b'], {
@@ -26,13 +27,6 @@ $( document ).ready(function() {
 			localStorage.setItem('split-sizes', JSON.stringify(split.getSizes()));
 		}
 	});
-	
-    Split(['#c', '#d'], {
-      direction: 'vertical',
-      sizes: [50, 50],
-      gutterSize: 8,
-      cursor: 'row-resize'
-    });
 	
     Split(['#e', '#f'], {
       direction: 'vertical',
@@ -112,23 +106,39 @@ function joinedRoom() {
 function addRemoteVideo(stream, participantID) {
 	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
-	adjustVideoSize();	
+	$("#spinner-loader-center").hide();
+	$("#remote-video").show();
 }
 
 function removeRemoteVideo(participantID) {
 	occupied = false;
+	$("#spinner-loader-center").show();
+	$("#remote-video").hide();
+	
+	startSearch();
 }
 
-function next() {
-	setInterval(function(){ 
+function nextClicked() {
+	startSearch();
+}
+
+function startSearch() {
+	// Search for a new one
+	occupied = false;
+	clearInterval(searchRoomIntervalID);
+	console.log('Starting search room interval');
+	searchRoomIntervalID = setInterval(function(){ 
 		if (!occupied) {
 			meeting.next();
 		}
 	}, 1000);
+	
 }
 
-function adjustVideoSize() {
-
+function stopSearch() {
+	// Stop search interval
+	clearInterval(searchRoomIntervalID);
+	searchRoomIntervalID = null;
 }
 
 ////////////////////////////////////////////////////////////////////////////

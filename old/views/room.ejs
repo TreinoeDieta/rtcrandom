@@ -23,39 +23,35 @@
     <title>Video Conference</title>
 </head>
 <body>
-	<div id="header">Header</div>
+	<div id="header">
+		Header
+		<button type="button" onclick="nextClicked()">Next</button>			
+	</div>
 	
 	<div id="container">
 	    <div id="a" class="split split-horizontal">
-	      <div id="c" class="split content split-content-left">
-			<div class="videos-wrapper">
-				<div class="video-box-wrapper">
-					<div id="skype-loader-center">
-						<div class="skype-loader">
-							<div class="dot">
-								<div class="first"></div>
+			<div id="videos">
+				<div id="videos-wrapper-cell">
+					<div id="videos-wrapper">
+						<div id="local-video-wrap" class='video-wrap'>
+							<video class="video-box" id="local-video" autoplay></video>
+						</div>
+						<div id="remote-video-wrap" class='video-wrap'>
+							<div id="spinner-loader-center">
+								<div class="spinner-loader">
+									<div class="dot">
+										<div class="first"></div>
+									</div>
+									<div class="dot"></div>
+									<div class="dot"></div>
+									<div class="dot"></div>
+								</div>
 							</div>
-	
-							<div class="dot"></div>
-	
-							<div class="dot"></div>
-	
-							<div class="dot"></div>
+							<video class="video-box" id="remote-video" autoplay></video>
 						</div>
 					</div>
-	
-					<video class="video-box" id="remote-video" autoplay></video>
 				</div>
 			</div>
-		  </div>
-	      <div id="d" class="split content split-content-left">
-			<div class="videos-wrapper local-videos-wrapper">
-				<div class="video-box-wrapper">
-					<video class="video-box" id="local-video" autoplay></video>
-				</div>
-			</div>
-			<div id="local-video-controls">controls</div>
-		  </div>
 	    </div>
 	    
 	    <div id="b" class="split split-horizontal">
@@ -66,7 +62,6 @@
 			</div>
 			<div id="f" class="split content">
 				<input type="text" disabled id="dataChannelSend" placeholder="Message..."></input>
-				<button type="button" onclick="next()">Next</button>
 			</div>
 	    </div>
 	    
