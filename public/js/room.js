@@ -105,23 +105,19 @@ function joinedRoom() {
 function addRemoteVideo(stream, participantID) {
 	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
-	adjustVideoSize();	
+	$("#spinner-loader-center").hide();
+	$("#remote-video").show();
 }
 
 function removeRemoteVideo(participantID) {
 	occupied = false;
+	$("#spinner-loader-center").show();
+	$("#remote-video").hide();
 }
 
 function next() {
-	setInterval(function(){ 
-		if (!occupied) {
-			meeting.next();
-		}
-	}, 1000);
-}
-
-function adjustVideoSize() {
-
+	// Search for a new one
+	meeting.next();
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,10 @@
     <title>Video Conference</title>
 </head>
 <body>
-	<div id="header">Header</div>
+	<div id="header">
+		Header
+		<button type="button" onclick="next()">Next</button>			
+	</div>
 	
 	<div id="container">
 	    <div id="a" class="split split-horizontal">
@@ -34,6 +37,16 @@
 							<video class="video-box" id="local-video" autoplay></video>
 						</div>
 						<div id="remote-video-wrap" class='video-wrap'>
+							<div id="spinner-loader-center">
+								<div class="spinner-loader">
+									<div class="dot">
+										<div class="first"></div>
+									</div>
+									<div class="dot"></div>
+									<div class="dot"></div>
+									<div class="dot"></div>
+								</div>
+							</div>
 							<video class="video-box" id="remote-video" autoplay></video>
 						</div>
 					</div>
@@ -49,7 +62,6 @@
 			</div>
 			<div id="f" class="split content">
 				<input type="text" disabled id="dataChannelSend" placeholder="Message..."></input>
-				<button type="button" onclick="next()">Next</button>
 			</div>
 	    </div>
 	    
