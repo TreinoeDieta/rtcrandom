@@ -29,6 +29,7 @@ var Meeting = function (socketioHost) {
     var _onParticipantHangupCallback;
     var _host = socketioHost;
     var _haveLocalOffer = {};
+    var _participantID;
     
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
@@ -51,7 +52,7 @@ var Meeting = function (socketioHost) {
 		
         
         window.onbeforeunload = function(e) {
-            _defaultChannel.emit('message',{type: 'bye', from:_myID});
+            _defaultChannel.emit('message',{type: 'bye', from:_myID, room:_room});
         }
 	}
     
@@ -242,7 +243,7 @@ var Meeting = function (socketioHost) {
                 if (!_haveLocalOffer[_room]) {
                     // TODO: Investigate why 'newparticipant' message gets received twice which causes error: 'Cannot call createOffer/setLocalDescription in "have-local-offer" state'
                     _haveLocalOffer[_room] = partID;
-
+					
                     // Open a new communication channel to the new participant
                     console.log('Opening a new channel for offers to the new participant');
                     _offerChannel = openSignalingChannel(_room);
@@ -270,8 +271,11 @@ var Meeting = function (socketioHost) {
                 }
 
             } else if (message.type === 'bye') {
-                console.log('Bye received from '+ message.from);
-                hangup(message.from);
+                console.log('Bye received from '+ message.from+' for room '+message.room);
+				if (_room === message.room) {
+					console.log("Hanging up.");
+					hangup(message.from);	
+				}
             }
         });
 		
@@ -466,9 +470,7 @@ var Meeting = function (socketioHost) {
     }
 
 	function closeCurrentConnection() {
-		if (_room) {
-			_defaultChannel.emit('message',{type: 'bye', from:_myID});	
-		}
+		_room = null;	
 		
 		if (_opc) {
             console.log("Closing _opc");

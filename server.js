@@ -95,7 +95,7 @@ io.sockets.on('connection', function (socket) {
 		if (message.type=="bye") {
 			console.log('Deleting user '+message.from+' from queue.');
 			delete _clients[message.from];
-			
+			delete _isReady[message.from];
 			var index = _queue.indexOf(message.from);
 			_queue.splice(index, 1);
 		}
