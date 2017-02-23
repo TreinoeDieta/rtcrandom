@@ -75,73 +75,61 @@ footer {
 }
 
 /********************** VIDEO ELEMENTS **************************/
-/********************** VIDEO ELEMENTS **************************/
 video {
 	outline:none;
 }
 
-#videos {
+.videos-wrapper {
 	display:table;
-	text-align: center;
-    width: 100%;
-	height: 100%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
-	background: black;
+	position:relative;
+	width:100%;
+	height:100%;
 }
 
-#videos-wrapper-cell {
-	display:table-cell;
-	vertical-align:middle;
+.videos-wrapper.local-videos-wrapper {
+	display:table;
+	position:relative;
+	width:100%;
+	height:calc(100% - 3em); /* 2em = #local-video-controls height*/
 }
 
-#videos-wrapper {
-    position: relative;
-    text-align: center;
-	display:block;
-}
+#local-video-controls {
+	position:relative;
+	height: 3em;
+	width: 100%;
+	display:table;
+	 box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	border-top: 1px #171717 solid;
+	
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0e0e0e+0,1c1c1c+100 */
+	background: #0e0e0e; /* Old browsers */
+	background: -moz-linear-gradient(top,  #0e0e0e 0%, #1c1c1c 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top,  #0e0e0e 0%,#1c1c1c 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom,  #0e0e0e 0%,#1c1c1c 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0e0e0e', endColorstr='#1c1c1c',GradientType=0 ); /* IE6-9 */
+
+
+}	
 
 .video-box {
-    border-radius: 5px;
 	width:100%;
-    border:10px black solid;
-    vertical-align:middle;
-    -webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-ms-box-sizing:border-box;
+	box-sizing:border-box;
 }
 
-.video-wrap {
-    display: block;
+.video-box-wrapper {
+	display:table-cell;
+	position:relative;
+	vertical-align:middle;
+	/* background-image:url(../images/darknoise.png); */
+	background:black;
+	text-align:center;
 }
 
-/* we have exactly two videos */
-#local-video-wrap {
-	width: 20%;
-}
-
-#local-video-wrap:first-child:nth-last-child(2) {
-    position:absolute;
-    bottom:1em;
-    right:1em;
-    height:auto;
-    margin:0;
-    padding:1px;
-    background-color: rgba(255,255,255,0.5);
-    border-radius: 0;
-}
-	
-#local-video-wrap:first-child:nth-last-child(2) .video-box{
-    border:none;
-    border-radius: 0;
-}
-
-#local-video {
-	border: 1px red solid;
-}
 /********************** CHAT ELEMENTS **************************/
 #chat {
 	position:relative;

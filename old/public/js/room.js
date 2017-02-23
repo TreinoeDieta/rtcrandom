@@ -14,7 +14,7 @@ $( document ).ready(function() {
 	if (sizes) {
 		sizes = JSON.parse(sizes);
 	} else {
-		sizes = [80, 20];  // default sizes
+		sizes = [40, 60];  // default sizes
 	}
 
 	var split = Split(['#a', '#b'], {
@@ -26,6 +26,13 @@ $( document ).ready(function() {
 			localStorage.setItem('split-sizes', JSON.stringify(split.getSizes()));
 		}
 	});
+	
+    Split(['#c', '#d'], {
+      direction: 'vertical',
+      sizes: [50, 50],
+      gutterSize: 8,
+      cursor: 'row-resize'
+    });
 	
     Split(['#e', '#f'], {
       direction: 'vertical',
