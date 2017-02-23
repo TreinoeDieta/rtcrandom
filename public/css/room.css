@@ -84,8 +84,20 @@ video {
 	position:relative;
 	width:100%;
 	height:100%;
-	background-image:url(../images/darknoise.png);
 }
+
+.videos-wrapper.local-video-wrapper {
+	height: calc(100% - 3em); /* 2em = #local-video-controls height*/
+}
+
+#local-video-controls{
+	height: 3em;
+	width: 100%;
+	
+	display:table-cell;
+	background-color:#2B2B2B;
+	vertical-align:bottom;
+}	
 
 .video-box {
 	width:90%;
@@ -98,8 +110,8 @@ video {
 .video-wrapper-cell {
 	display:table-cell;
 	position:relative;
-	vertical-align:middle;
-	background-color:#2B2B2B;
+	vertical-align:top;
+	background-image:url(../images/darknoise.png);
 	text-align:center;
 }
 
