@@ -15,8 +15,7 @@ var Meeting = function (socketioHost) {
     var _defaultChannel;
     var _privateAnswerChannel;
     var _offerChannel;
-    var _opc;
-    var _apc;
+    var _pc;
     var _sendChannel;
     var _room;
     var _myID;
@@ -248,13 +247,13 @@ var Meeting = function (socketioHost) {
 					if (msg.dest===_myID) {
 						if (msg.type === 'answer') {
 							console.log('Got answer from '+msg.from +' in offer channel');
-							_opc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
+							_pc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
 															   setRemoteDescriptionSuccess, 
 															   setRemoteDescriptionError);
 						} else if (msg.type === 'candidate') {
 							var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
 							console.log('Got ice candidate from '+msg.from +' in offer channel');
-							_opc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+							_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
 						}
 					}
 				});
@@ -307,11 +306,7 @@ var Meeting = function (socketioHost) {
                 } else if (message.type === 'candidate') {
                     console.log('Got ice candidate from '+message.from +' in private channel');
                     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label, candidate: message.candidate});
-					if (_opc) {
-						_opc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
-					} else {
-						_apc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
-					}
+					_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
                 }
             }
         });
@@ -404,16 +399,16 @@ var Meeting = function (socketioHost) {
     function createOffer(participantId) {
         console.log('Creating offer for peer '+participantId);
 
-        _opc = new RTCPeerConnection(_pcConfig);
-        _opc.onicecandidate = handleIceCandidateAnswerWrapper(_offerChannel, participantId);
-        _opc.ontrack = handleRemoteStreamAdded(participantId); // .onaddstream
-        _opc.onremovestream = handleRemoteStreamRemoved; 
-        _opc.addStream(_localStream);
-        _opc.oniceconnectionstatechange = handleIceConnectionStateChangeOPC;
+        _pc = new RTCPeerConnection(_pcConfig);
+        _pc.onicecandidate = handleIceCandidateAnswerWrapper(_offerChannel, participantId);
+        _pc.ontrack = handleRemoteStreamAdded(participantId); // .onaddstream
+        _pc.onremovestream = handleRemoteStreamRemoved; 
+        _pc.addStream(_localStream);
+        _pc.oniceconnectionstatechange = handleIceConnectionStateChangeOPC;
 
 		try {
 			// Reliable Data Channels not yet supported in Chrome
-			_sendChannel = _opc.createDataChannel("sendDataChannel", {reliable: false});
+			_sendChannel = _pc.createDataChannel("sendDataChannel", {reliable: false});
 			_sendChannel.onmessage = handleMessage;
 			console.log('Created send data channel');
 		} catch (e) {
@@ -430,53 +425,47 @@ var Meeting = function (socketioHost) {
                 // Set Opus as the preferred codec in SDP if Opus is present.
                 sessionDescription.sdp = preferOpus(sessionDescription.sdp);
                 
-                _opc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionOfferError);  
+                _pc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionOfferError);  
                 console.log('Sending offer to channel '+ channel.name);
                 channel.emit('message', {snDescription: sessionDescription, from:_myID, type:'offer', dest:participantId});        
             }
         }
 
-        _opc.createOffer(onSuccess(participantId), handleCreateOfferError);  
+        _pc.createOffer(onSuccess(participantId), handleCreateOfferError);  
     }
 
     function createAnswer(sdp, cnl, to) {
         console.log('Creating answer for peer '+to);
-        _apc = new RTCPeerConnection(_pcConfig);
-        _apc.onicecandidate = handleIceCandidateAnswerWrapper(cnl, to);
-        _apc.ontrack = handleRemoteStreamAdded(to); // .onaddstream
-        _apc.onremovestream = handleRemoteStreamRemoved;
-        _apc.addStream(_localStream);
-        _apc.setRemoteDescription(new RTCSessionDescription(sdp.snDescription), setRemoteDescriptionSuccess, setRemoteDescriptionError);
-        _apc.ondatachannel = gotReceiveChannel(to);
-        _apc.oniceconnectionstatechange = handleIceConnectionStateChangeAPC;
+        _pc = new RTCPeerConnection(_pcConfig);
+        _pc.onicecandidate = handleIceCandidateAnswerWrapper(cnl, to);
+        _pc.ontrack = handleRemoteStreamAdded(to); // .onaddstream
+        _pc.onremovestream = handleRemoteStreamRemoved;
+        _pc.addStream(_localStream);
+        _pc.setRemoteDescription(new RTCSessionDescription(sdp.snDescription), setRemoteDescriptionSuccess, setRemoteDescriptionError);
+        _pc.ondatachannel = gotReceiveChannel(to);
+        _pc.oniceconnectionstatechange = handleIceConnectionStateChangeAPC;
         
         var onSuccess = function(channel) {
             return function(sessionDescription) {
                 // Set Opus as the preferred codec in SDP if Opus is present.
                 sessionDescription.sdp = preferOpus(sessionDescription.sdp);
 
-                _apc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionAnswerError); 
+                _pc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionAnswerError); 
                 console.log('Sending answer to channel '+ channel.name);
                 channel.emit('message', {snDescription:sessionDescription, from:_myID,  type:'answer', dest:to});
             }
         }
 
-        _apc.createAnswer(onSuccess(cnl), handleCreateAnswerError);
+        _pc.createAnswer(onSuccess(cnl), handleCreateAnswerError);
     }
 
 	function closeCurrentConnection() {
 		_room = null;	
 		
-		if (_opc) {
-            console.log("Closing _opc");
-            _opc.close();
-		    _opc = null;
-        }
-        
-        if (_apc) {
-            console.log("Closing _apc");
-            _apc.close();
-		    _apc = null;
+		if (_pc) {
+            console.log("Closing _pc");
+            _pc.close();
+		    _pc = null;
         }
         
         if (_sendChannel) {
@@ -510,20 +499,20 @@ var Meeting = function (socketioHost) {
     }
 
     function handleIceConnectionStateChangeOPC(event) {
-        console.log('ICE connection state change on OPC:'+_opc.iceConnectionState);
-        if(_opc.iceConnectionState == 'disconnected') {
-            console.log('Disconnected on _opc');
-        } else if(_opc.iceConnectionState == 'failed') {
-            console.log('Failed on _opc');        
+        console.log('ICE connection state change on OPC:'+_pc.iceConnectionState);
+        if(_pc.iceConnectionState == 'disconnected') {
+            console.log('Disconnected on _pc');
+        } else if(_pc.iceConnectionState == 'failed') {
+            console.log('Failed on _pc');        
         }
     }
     
     function handleIceConnectionStateChangeAPC(event) {
-        console.log('ICE connection state change on APC:'+_apc.iceConnectionState);
-        if(_apc.iceConnectionState == 'disconnected') {
-            console.log('Disconnected on _apc');
-        } else if(_apc.iceConnectionState == 'failed') {
-            console.log('Failed on _apc');
+        console.log('ICE connection state change on APC:'+_pc.iceConnectionState);
+        if(_pc.iceConnectionState == 'disconnected') {
+            console.log('Disconnected on _pc');
+        } else if(_pc.iceConnectionState == 'failed') {
+            console.log('Failed on _pc');
         }
     }
     
