@@ -462,6 +462,8 @@ var Meeting = function (socketioHost) {
     }
 
 	function closeCurrentConnection() {
+		_defaultChannel.emit('message',{type: 'bye', from:_myID, room:_room});
+
 		_room = null;	
 		
 		if (_pc) {
