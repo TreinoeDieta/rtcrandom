@@ -180,7 +180,7 @@ io.sockets.on('connection', function (socket) {
     function configNameSpaceChannel(room) {
         var socketNamespace = io.of('/'+room);
         
-        socketNamespace.once('connection', function (socket){
+        socketNamespace.on('connection', function (socket){
 	        console.log('connect %s', socket);
             socket.on('message', function (message) {
                 // Send message to everyone BUT sender
