@@ -135,11 +135,13 @@ function addRemoteVideo(stream, participantID) {
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
+	$('#local-video-wrap').removeClass('single');
 }
 
 function removeRemoteVideo(participantID) {
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
+	$('#local-video-wrap').addClass('single');
 }
 
 function next() {
