@@ -29,7 +29,6 @@ var Meeting = function (socketioHost) {
     var _onParticipantHangupCallback;
     var _host = socketioHost;
     var _participantID;
-    var _haveLocalOffer = {};
 	
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
@@ -300,9 +299,8 @@ var Meeting = function (socketioHost) {
         privateAnswerChannel.on('message', function (message){
 			console.log('Received message in private channel:', message);
             if (message.dest===_myID) {
-                if(message.type === 'offer' && !_haveLocalOffer[message.from]) {
+                if(message.type === 'offer') {
                     console.log('Got offer from '+message.from +' in private channel');
-					_haveLocalOffer[message.from] = message.from;
                     var to = message.from;
                     createAnswer(message, _privateAnswerChannel, to);
                 } else if (message.type === 'candidate') {
@@ -478,16 +476,12 @@ var Meeting = function (socketioHost) {
         }
 
         _remoteStream = null;
-		_haveLocalOffer = {};
-		
 	}
 	
     function hangup(from) {
 		closeCurrentConnection();
      
 		_onParticipantHangupCallback(from);
-       
-		delete _haveLocalOffer[from];
     }
 
 
