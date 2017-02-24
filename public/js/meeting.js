@@ -34,7 +34,9 @@ var Meeting = function (socketioHost) {
     // PUBLIC FUNCTIONS
     ////////////////////////////////////////////////
     
-    function init() { 
+    function init(videoEnabled, micEnabled) {
+	    _constraints = {video: videoEnabled, audio:micEnabled};
+	     
 		if (!_myID) {
             _myID = generateID();
             console.log('Generated ID: '+_myID);
@@ -96,34 +98,39 @@ var Meeting = function (socketioHost) {
 		_sendChannel.send(message);
     }
     
-    /**
+	
+	 /**
 	 *
-	 * Toggle microphone availability.
+	 * enable/disable microphone availability.
 	 *
 	 */
-    function toggleMic() {
+    function enableMic(enable) {
 		var tracks = _localStream.getTracks();
 		for (var i = 0; i < tracks.length; i++) {
 			if (tracks[i].kind=="audio") {
-				tracks[i].enabled = !tracks[i].enabled;	
+				tracks[i].enabled = enable;	
 			}
 		}
+		
+		_constraints.audio = enable;
 	}
-    
-    
-    /**
+	
+	 /**
 	 *
-	 * Toggle video availability.
+	 * enable/disable video availability.
 	 *
 	 */
-    function toggleVideo() {
+    function enableVideo(enable) {
 		var tracks = _localStream.getTracks();
 		for (var i = 0; i < tracks.length; i++) {
 			if (tracks[i].kind=="video") {
-				tracks[i].enabled = !tracks[i].enabled;	
+				tracks[i].enabled = enable;	
 			}
 		}
+		
+		_constraints.video = enable;
 	}
+	
 	
 	/**
 	 *
@@ -717,8 +724,8 @@ var Meeting = function (socketioHost) {
     exports.init            	=       init;
     exports.joinRoom            =       joinRoom;
 	exports.next            	=       next;
-    exports.toggleMic 			= 		toggleMic;
-    exports.toggleVideo			= 		toggleVideo;
+    exports.enableMic 			= 		enableMic;
+	exports.enableVideo 		= 		enableVideo;
     exports.onLocalVideo        =       onLocalVideo;
     exports.onRemoteVideo       =       onRemoteVideo;
 	exports.onJoinedRoom		=		onJoinedRoom;

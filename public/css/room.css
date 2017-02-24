@@ -1,5 +1,6 @@
-@font-face { font-family: 'Linux Libertine'; font-style: normal; font-weight: 400; src: local('Linux Libertine'),url(//brick.a.ssl.fastly.net/fonts/linuxlibertine/400.woff) format('woff'); } .fa-wikipedia:before { font-family: 'Linux Libertine', 'Times New Roman', Times, serif; font-weight: 400; content: "W"; }
-
+* {
+	font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+}
 
 html,body {
 	height:100%;
@@ -22,11 +23,9 @@ body {
 	box-sizing:border-box;
 	overflow-y:auto;
 	overflow-x:hidden;
-	border:1px #eee solid;
 }
 
 .content {
-
 	background-color:#fff;
 }
 
@@ -117,9 +116,14 @@ video {
 }
 
 #remote-video-wrap {
+
+}
+
+#remote-video-wrap.empty {
 	min-width: 80%;
 	min-height: 60%;
-	border:1px silver solid;
+	padding: 1em;
+	border: 1px silver solid;
 }
 
 #local-video-wrap {
@@ -128,8 +132,8 @@ video {
 
 #local-video-wrap:first-child:nth-last-child(2) {
     position:absolute;
-    bottom:1em;
-    right:1em;
+    bottom:2em;
+    right:2em;
     height:auto;
     margin:0;
     padding:1px;
@@ -150,6 +154,7 @@ video {
 
 #video-controls {
 	display:table-row;
+	height: 20%;
 }
 
 #video-controls-content {
@@ -177,17 +182,18 @@ video {
 	background-color:#fcfcfc;
 }
 
-#dataChannelSend {
+#data-channel-send {
 	border:0;
-	height:50px;
+	height:100%;
 	width:100%;
-	padding-left:1em;
+	padding:1em;
 	font-size:1em;
-	font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
 	font-weight:300;
 	color:#383838;
 	background-color:#FEFEFE;
 	border-radius:0;
+	resize: none;
+	overflow: hidden;
 	transition:all .3s ease-in-out 0;
 	-webkit-box-sizing:border-box;
 	-moz-box-sizing:border-box;
@@ -195,7 +201,7 @@ video {
 	box-sizing:border-box;
 }
 
-#chat.visible #dataChannelSend {
+#chat.visible #data-channel-send {
 	padding:1em;
 }
 
@@ -205,7 +211,6 @@ video {
 	position:relative;
 	max-width:60%;
 	margin:20px;
-	font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
 	font-weight:300;
 	color:#1f1f1f;
 	font-size:.8em;
@@ -331,38 +336,26 @@ input, button, submit { border:none; }
 	
 	background-color: #3BB3E0;
 	font-family: "Open Sans",sans-serif;
-	font-size:20px;
+	font-size:1em;
 	text-decoration: none;
 	color: #FFF;
 	position: relative;
 	padding: 10px 20px 10px 20px;
 	background-image: -moz-linear-gradient(center bottom , #2CA0CA 0%, #3EB8E5 100%);
-	border-radius: 5px;
-	box-shadow: 0px 1px 0px #2AB7EC inset, 0px 2px 0px 0px #156785, 0px 5px 2px #303030;
+	border-radius: 2px;
+	box-shadow: 0px 1px 0px #3BB3E0 inset, 0px 2px 0px 0px #1c8eb8, 0px 5px 2px #c9c9c9;
 }
 
 .button:hover {
 	cursor: pointer;
 }
 
-.button:active {
+.button:active,.button.activated  {
     top:3px;
-    background-image: linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-	background-image: -o-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-	background-image: -moz-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-	background-image: -webkit-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-	background-image: -ms-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -webkit-gradient(
-        linear,
-        left bottom,
-        left top,
-        color-stop(0, rgb(62,184,229)),
-        color-stop(1, rgb(44,160,202))
-	);
-	-webkit-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
-	-moz-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
-	-o-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
-	box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
+	-webkit-box-shadow:  0px 1px 0px #3BB3E0 inset, 0px 2px 0px 0px #1c8eb8, 0px 5px 2px #c9c9c9;
+	-moz-box-shadow:  0px 1px 0px #3BB3E0 inset, 0px 2px 0px 0px #1c8eb8, 0px 5px 2px #c9c9c9;
+	-o-box-shadow:  0px 1px 0px #3BB3E0 inset, 0px 2px 0px 0px #1c8eb8, 0px 5px 2px #c9c9c9;
+	box-shadow:  0px 1px 0px #3BB3E0 inset, 0px 2px 0px 0px #1c8eb8, 0px 5px 2px #c9c9c9;
 }
 
 /************************************** ON/OFF SWITCH ******************************************/
@@ -370,10 +363,11 @@ section {
   width: 160px;
   display: inline-block;
 }
-input {
+input[type=checkbox] {
   display: block;
   opacity: 0;
 }
+
 label {
   width: 60px;
   height: 30px;
@@ -400,6 +394,7 @@ label:after {
 input:checked + label {
   background: rgb(39, 173, 95);
 }
+
 input:checked + label:after {
   left: auto;
   right: 0;
@@ -412,10 +407,12 @@ p {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 input:checked ~ p:nth-of-type(1) {
   color: rgb(39, 173, 95);
   display: block;
 }
+
 input:not(:checked) ~ p:nth-of-type(2) {
   display: block;
 }

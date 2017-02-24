@@ -5,6 +5,19 @@ var name = 'Stranger';
 var avatar = 2;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
 
+$(document).on('keydown',function(evt) {
+    if (evt.keyCode == 27) {
+	   $('#next-button').addClass('activated');
+    }
+});
+
+$(document).on('keyup',function(evt) {
+    if (evt.keyCode == 27) {
+	   $('#next-button').removeClass('activated');
+       next();
+    }
+});
+
 $( document ).ready(function() {
 	/////////////////////////////////
 	// SPLIT VIEW
@@ -18,7 +31,7 @@ $( document ).ready(function() {
 
 	var split = Split(['#a', '#b'], {
 		sizes: sizes,
-		minSize: [200, 60],
+		minSize: [400,100],
 		gutterSize: 8,
 		cursor: 'col-resize',
 		onDragEnd: function () {
@@ -37,7 +50,7 @@ $( document ).ready(function() {
 	// CHAT
 	/////////////////////////////////	
 	// Respond to return key in message input box (send message)
-    $("#dataChannelSend").on("keydown",function callback(e) {
+    $("#data-channel-send").on("keydown",function callback(e) {
 	    var value = $(this).val();
         if(e.keyCode == 13 && value!='') {
             var message = value;
@@ -45,6 +58,7 @@ $( document ).ready(function() {
             meeting.sendChatMessage(messageObj); 
             addChatBubble(messageObj, true);
             $(this).val('');
+            return false;
         }
 	});
 
@@ -56,6 +70,17 @@ $( document ).ready(function() {
 	meeting.onLocalVideo(function(stream) {
 	        //alert(stream.getVideoTracks().length);
 	        document.querySelector('#local-video').src = window.URL.createObjectURL(stream);
+    		
+	        $("#toggle-mic-label").on("click",function callback(e) {
+		        toggleMic();
+    		});
+    		
+    		$("#toggle-cam-label").on("click",function callback(e) {
+	    		// TODO fix on to fast onclick
+	    		console.log('toggle');
+				toggleVideo();
+    		});
+    		
 	    }
 	);
 	
@@ -71,12 +96,12 @@ $( document ).ready(function() {
 	);
     
     meeting.onChatReady(function() {
-			$("#dataChannelSend").prop('disabled', false);
+			$("#data-channel-send").prop('disabled', false);
 	    }
 	);
 	
 	meeting.onChatNotReady(function() {
-			$("#dataChannelSend").prop('disabled', true);
+			$("#data-channel-send").prop('disabled', true);
 	    }
 	);
 	
@@ -95,7 +120,7 @@ $( document ).ready(function() {
 	    }
 	);
 	
-	meeting.init();
+	meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
 }); // end of document.ready
 
 ////////////////////////////////////////////////////////////////////////////
@@ -117,10 +142,30 @@ function removeRemoteVideo(participantID) {
 	$("#remote-video").hide();
 }
 
-function nextClicked() {
+function next() {
 	meeting.next();
 }
 
+
+function enterFullScreen() {
+	
+}
+
+/**
+ * Disable enable mic
+ *
+ */
+function toggleMic() {
+	meeting.enableMic(!$("#checkbox-mic").prop("checked"));
+}
+
+/**
+ * Disable enable local video
+ *
+ */
+function toggleVideo() {
+	meeting.enableVideo(!$("#checkbox-cam").prop("checked"));
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // CHAT
