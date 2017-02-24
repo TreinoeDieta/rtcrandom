@@ -71,7 +71,6 @@ function getRoom() {
 ////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
-    
 	function log(){
         var array = [">>> Message from server: "];
         for (var i = 0; i < arguments.length; i++) {
@@ -179,6 +178,7 @@ io.sockets.on('connection', function (socket) {
         var socketNamespace = io.of('/'+room);
         
         socketNamespace.on('connection', function (socket){
+	        console.log('connect');
             socket.on('message', function (message) {
                 // Send message to everyone BUT sender
                 console.log('Sending message %j', message);
