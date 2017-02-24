@@ -22,11 +22,11 @@ body {
 	box-sizing:border-box;
 	overflow-y:auto;
 	overflow-x:hidden;
+	border:1px #eee solid;
 }
 
 .content {
-	border:1px solid silver;
-	box-shadow:inset 0 1px 2px #e4e4e4;
+
 	background-color:#fff;
 }
 
@@ -74,7 +74,6 @@ footer {
 }
 
 /********************** VIDEO ELEMENTS **************************/
-/********************** VIDEO ELEMENTS **************************/
 video {
 	outline:none;
 }
@@ -88,7 +87,7 @@ video {
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
 	box-sizing: border-box;
-	background: black;
+	background: #eee;
 }
 
 #videos-wrapper-cell {
@@ -105,7 +104,7 @@ video {
 .video-box {
     border-radius: 5px;
 	width:100%;
-    border:10px black solid;
+    border:10px #eee solid;
     vertical-align:middle;
     -webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -117,7 +116,12 @@ video {
     display: block;
 }
 
-/* we have exactly two videos */
+#remote-video-wrap {
+	min-width: 80%;
+	min-height: 60%;
+	border:1px silver solid;
+}
+
 #local-video-wrap {
 	width: 20%;
 }
@@ -141,6 +145,17 @@ video {
 #local-video {
 	border: 1px red solid;
 }
+
+/********************** VIDEO CONTROLS **************************/
+
+#video-controls {
+	display:table-row;
+}
+
+#video-controls-content {
+	display:inline-block;
+	text-align: center;
+}
 /********************** CHAT ELEMENTS **************************/
 #chat {
 	position:relative;
@@ -160,7 +175,6 @@ video {
 	height:100%;
 	overflow-y:scroll;
 	background-color:#fcfcfc;
-	border-bottom:1px #e8e8e8 solid;
 }
 
 #dataChannelSend {
@@ -303,3 +317,106 @@ video {
 .avatar.chatIcon-6 {
 	background-image:url(../images/avatars/6.png);
 }
+
+
+/********************** BUTTONS **************************/
+
+input, button, submit { border:none; } 
+
+.button {
+	font-size: 1em;
+	display: inline-block;
+	float: right;
+	top:0;
+	
+	background-color: #3BB3E0;
+	font-family: "Open Sans",sans-serif;
+	font-size:20px;
+	text-decoration: none;
+	color: #FFF;
+	position: relative;
+	padding: 10px 20px 10px 20px;
+	background-image: -moz-linear-gradient(center bottom , #2CA0CA 0%, #3EB8E5 100%);
+	border-radius: 5px;
+	box-shadow: 0px 1px 0px #2AB7EC inset, 0px 2px 0px 0px #156785, 0px 5px 2px #303030;
+}
+
+.button:hover {
+	cursor: pointer;
+}
+
+.button:active {
+    top:3px;
+    background-image: linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+	background-image: -o-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+	background-image: -moz-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+	background-image: -webkit-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+	background-image: -ms-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(62,184,229)),
+        color-stop(1, rgb(44,160,202))
+	);
+	-webkit-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
+	-moz-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
+	-o-box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
+	box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #156785, 0px 5px 3px #303030;
+}
+
+/************************************** ON/OFF SWITCH ******************************************/
+section {
+  width: 160px;
+  display: inline-block;
+}
+input {
+  display: block;
+  opacity: 0;
+}
+label {
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  background: rgb(189, 189, 189);
+  border-radius: 30px;
+  
+  transition: background-color 0.4s;
+  -moz-transition: background-color 0.4s;
+  -webkit-transition: background-color 0.4s;
+}
+label:after {
+  left: 0;
+  width: 20px;
+  height: 20px;
+  margin: 5px;
+  content: '';
+  position: absolute;
+  background: #FFF;
+  border-radius: 10px;
+}
+input:checked + label {
+  background: rgb(39, 173, 95);
+}
+input:checked + label:after {
+  left: auto;
+  right: 0;
+}
+
+p {
+  font: normal 8px/40px Arial;
+  color: rgb(189, 189, 189);
+  display: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+input:checked ~ p:nth-of-type(1) {
+  color: rgb(39, 173, 95);
+  display: block;
+}
+input:not(:checked) ~ p:nth-of-type(2) {
+  display: block;
+}
+​
