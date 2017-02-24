@@ -406,7 +406,7 @@ var Meeting = function (socketioHost) {
         _pc.ontrack = handleRemoteStreamAdded(participantId); // .onaddstream
         _pc.onremovestream = handleRemoteStreamRemoved; 
         _pc.addStream(_localStream);
-        _pc.oniceconnectionstatechange = handleIceConnectionStateChangeOPC;
+        _pc.oniceconnectionstatechange = handleIceConnectionStateChangePC;
 
 		try {
 			// Reliable Data Channels not yet supported in Chrome
@@ -445,7 +445,7 @@ var Meeting = function (socketioHost) {
         _pc.addStream(_localStream);
         _pc.setRemoteDescription(new RTCSessionDescription(sdp.snDescription), setRemoteDescriptionSuccess, setRemoteDescriptionError);
         _pc.ondatachannel = gotReceiveChannel(to);
-        _pc.oniceconnectionstatechange = handleIceConnectionStateChangeAPC;
+        _pc.oniceconnectionstatechange = handleIceConnectionStateChangePC;
         
         var onSuccess = function(channel) {
             return function(sessionDescription) {
@@ -503,17 +503,8 @@ var Meeting = function (socketioHost) {
 		_defaultChannel.emit('ready', {from:_myID});
     }
 
-    function handleIceConnectionStateChangeOPC(event) {
-        console.log('ICE connection state change on OPC:'+_pc.iceConnectionState);
-        if(_pc.iceConnectionState == 'disconnected') {
-            console.log('Disconnected on _pc');
-        } else if(_pc.iceConnectionState == 'failed') {
-            console.log('Failed on _pc');        
-        }
-    }
-    
-    function handleIceConnectionStateChangeAPC(event) {
-        console.log('ICE connection state change on APC:'+_pc.iceConnectionState);
+    function handleIceConnectionStateChangePC(event) {
+        console.log('ICE connection state change on PC:'+_pc.iceConnectionState);
         if(_pc.iceConnectionState == 'disconnected') {
             console.log('Disconnected on _pc');
         } else if(_pc.iceConnectionState == 'failed') {
