@@ -29,7 +29,8 @@ var Meeting = function (socketioHost) {
     var _onParticipantHangupCallback;
     var _host = socketioHost;
     var _participantID;
-    
+    var _haveLocalOffer = {};
+	
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
     ////////////////////////////////////////////////
@@ -238,28 +239,35 @@ var Meeting = function (socketioHost) {
             console.log('Received message in default channel:', message);
             var partID = message.from;
             if (message.type === 'newparticipant' && message.from != _myID) {
-				// Open a new communication channel to the new participant
-				console.log('Opening a new channel for offers to the new participant');
-				_offerChannel = openSignalingChannel(_room);
+				if (!_haveLocalOffer.hasOwnProperty(partID)) {
+					// TODO: Investigate why 'newparticipant' message gets received twice which causes error: 'Cannot call createOffer/setLocalDescription in "have-local-offer" state'
+					_haveLocalOffer[partID] = '';
 
-				// Wait for answers (to offers) from the new participant
-				_offerChannel.on('message', function (msg){
-					if (msg.dest===_myID) {
-						if (msg.type === 'answer') {
-							console.log('Got answer from '+msg.from +' in offer channel');
-							_pc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
-															   setRemoteDescriptionSuccess, 
-															   setRemoteDescriptionError);
-						} else if (msg.type === 'candidate') {
-							var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
-							console.log('Got ice candidate from '+msg.from +' in offer channel');
-							_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+					// Open a new communication channel to the new participant
+					console.log('Opening a new channel for offers to the new participant');
+					_offerChannel = openSignalingChannel(_room);
+
+					// Wait for answers (to offers) from the new participant
+					_offerChannel.on('message', function (msg){
+						if (msg.dest===_myID) {
+							if (msg.type === 'answer') {
+								console.log('Got answer from '+msg.from +' in offer channel');
+								_pc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
+																   setRemoteDescriptionSuccess, 
+																   setRemoteDescriptionError);
+							} else if (msg.type === 'candidate') {
+								var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
+								console.log('Got ice candidate from '+msg.from +' in offer channel');
+								_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+							}
 						}
-					}
-				});
+					});
 
-				// Send an offer to the new participant
-				createOffer(partID);
+					// Send an offer to the new participant
+					createOffer(partID);
+				} else {
+					console.log('Ignoring \'newparticipant\' message because we already have created an offer for '+ partID);
+				}
             } else if (message.type === 'bye') {
                 console.log('Bye received from '+ message.from+' for room '+message.room);
 				if (_room === message.room) {
@@ -271,7 +279,7 @@ var Meeting = function (socketioHost) {
 		
 		defaultChannel.on('next', function (message){
             if (message.dest===_myID) {
-	            console.log('Gor answer to our next request: '+message.success);
+	            console.log('Got answer to next request: '+message.success);
 	            if (message.success == true) {
 		            console.log("Received new room "+message.room);
 					closeCurrentConnection();
@@ -474,13 +482,16 @@ var Meeting = function (socketioHost) {
         }
 
         _remoteStream = null;
+		_haveLocalOffer = {};
+		
 	}
 	
     function hangup(from) {
 		closeCurrentConnection();
      
 		_onParticipantHangupCallback(from);
-                
+       
+		delete _haveLocalOffer[from];
     }
 
 
@@ -522,7 +533,7 @@ var Meeting = function (socketioHost) {
 
     function handleRemoteStreamAdded(from) {
 	    return function(event) {
-        	console.log('Remote stream added from '+from);
+        	console.log(event.track.kind+' remote stream added from '+from);
 		
             if (!_remoteStream) {
                _remoteStream = event.streams[0]; 
