@@ -181,7 +181,7 @@ io.sockets.on('connection', function (socket) {
         socketNamespace.on('connection', function (socket){
             socket.on('message', function (message) {
                 // Send message to everyone BUT sender
-                console.log('Sending message '+message.type);
+                console.log('Sending message %j', message);
                 socket.broadcast.emit('message', message);
             });
 		
