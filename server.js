@@ -10,9 +10,10 @@ var nodestatic = require('node-static');
 var express = require('express');
 var path = require('path');
 var http = require("http");
-var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 1337 // $OPENSHIFT_NODEJS_PORT is given by OpenShift
+var cors = require('cors');
+var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 8080 // $OPENSHIFT_NODEJS_PORT is given by OpenShift
 var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1' // $OPENSHIFT_NODEJS_IP is given by OpenShift
-var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1';
+var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 
 ////////////////////////////////////////////////
 // SETUP SERVER
@@ -24,6 +25,8 @@ require('./router')(app, socketIoServer);
 // Static content (css, js, .png, etc) is placed in /public
 app.use(express.static(__dirname + '/public'));
 
+app.use(cors());
+	
 // Location of our views
 app.set('views',__dirname + '/views');
 
@@ -36,8 +39,8 @@ app.engine('html', require('ejs').renderFile);
 var server=app.listen(serverPort, serverIpAddress, function(){
     console.log("Express is running on port "+serverPort);
 });
-var io = require('socket.io').listen(server, { log: false });
-
+var io = require('socket.io').listen(server, {log: false, origins:'*:*' });
+	
 ////////////////////////////////////////////////
 // USER HANDLING
 ////////////////////////////////////////////////
@@ -177,8 +180,8 @@ io.sockets.on('connection', function (socket) {
     function configNameSpaceChannel(room) {
         var socketNamespace = io.of('/'+room);
         
-        socketNamespace.on('connection', function (socket){
-	        console.log('connect');
+        socketNamespace.once('connection', function (socket){
+	        console.log('connect %s', socket);
             socket.on('message', function (message) {
                 // Send message to everyone BUT sender
                 console.log('Sending message %j', message);

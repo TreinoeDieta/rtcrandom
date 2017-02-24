@@ -1,4 +1,5 @@
 // Uses https://github.com/webrtc/adapter
+// https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/
 
 'use strict';
 
@@ -28,7 +29,6 @@ var Meeting = function (socketioHost) {
     var _onChatNotReadyCallback;
     var _onParticipantHangupCallback;
     var _host = socketioHost;
-    var _haveLocalOffer = {};
     var _participantID;
     
     ////////////////////////////////////////////////
@@ -82,7 +82,6 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
-		_haveLocalOffer = {};
         _defaultChannel.emit('next', {from:_myID, currentRoom:_room, hasLocalStream:(_localStream != null)});
     }
 	
@@ -240,36 +239,28 @@ var Meeting = function (socketioHost) {
             console.log('Received message in default channel:', message);
             var partID = message.from;
             if (message.type === 'newparticipant' && message.from != _myID) {
-                if (!_haveLocalOffer[partID]) {
-                    // TODO: Investigate why 'newparticipant' message gets received twice which causes error: 'Cannot call createOffer/setLocalDescription in "have-local-offer" state'
-                    _haveLocalOffer[partID] = partID;
-					
-                    // Open a new communication channel to the new participant
-                    console.log('Opening a new channel for offers to the new participant');
-                    _offerChannel = openSignalingChannel(_room);
+				// Open a new communication channel to the new participant
+				console.log('Opening a new channel for offers to the new participant');
+				_offerChannel = openSignalingChannel(_room);
 
-                    // Wait for answers (to offers) from the new participant
-                    _offerChannel.on('message', function (msg){
-                        if (msg.dest===_myID) {
-                            if (msg.type === 'answer') {
-                                console.log('Got answer from '+msg.from +' in offer channel');
-                                _opc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
-                                                                   setRemoteDescriptionSuccess, 
-                                                                   setRemoteDescriptionError);
-                            } else if (msg.type === 'candidate') {
-                                var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
-                                console.log('Got ice candidate from '+msg.from +' in offer channel');
-                                _opc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
-                            }
-                        }
-                    });
+				// Wait for answers (to offers) from the new participant
+				_offerChannel.on('message', function (msg){
+					if (msg.dest===_myID) {
+						if (msg.type === 'answer') {
+							console.log('Got answer from '+msg.from +' in offer channel');
+							_opc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
+															   setRemoteDescriptionSuccess, 
+															   setRemoteDescriptionError);
+						} else if (msg.type === 'candidate') {
+							var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
+							console.log('Got ice candidate from '+msg.from +' in offer channel');
+							_opc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+						}
+					}
+				});
 
-                    // Send an offer to the new participant
-                    createOffer(partID);
-                } else {
-                    console.log('Ignoring \'newparticipant\' message because we already have created an offer for '+ partID);
-                }
-
+				// Send an offer to the new participant
+				createOffer(partID);
             } else if (message.type === 'bye') {
                 console.log('Bye received from '+ message.from+' for room '+message.room);
 				if (_room === message.room) {
@@ -316,7 +307,11 @@ var Meeting = function (socketioHost) {
                 } else if (message.type === 'candidate') {
                     console.log('Got ice candidate from '+message.from +' in private channel');
                     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label, candidate: message.candidate});
-                    _apc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+					if (_opc) {
+						_opc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+					} else {
+						_apc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+					}
                 }
             }
         });
@@ -396,7 +391,7 @@ var Meeting = function (socketioHost) {
 	 */
     function openSignalingChannel(channel) {
         var namespace = _host + '/' + channel;
-        var sckt = io.connect(namespace);
+        var sckt = io.connect(namespace, {'forceNew': true });
         return sckt;
     }
 
@@ -496,9 +491,7 @@ var Meeting = function (socketioHost) {
 		closeCurrentConnection();
      
 		_onParticipantHangupCallback(from);
-        
-        delete _haveLocalOffer[from];
-        
+                
     }
 
 
