@@ -85,6 +85,11 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
+		if (_room) {
+			console.log('Sending p2pbye message to '+_participantID);
+			_privateAnswerChannel.emit('message', {from:_myID, type:'p2pbye', dest:_participantID}); 
+		}
+		
 		closeCurrentConnection();
         _onParticipantHangupCallback()
         
@@ -481,11 +486,6 @@ var Meeting = function (socketioHost) {
     }
 
 	function closeCurrentConnection() {		
-		if (_room) {
-			console.log('Sending p2pbye message to '+_participantID);
-			_privateAnswerChannel.emit('message', {from:_myID, type:'p2pbye', dest:_participantID}); 
-		}
-		
 		_room = null;	
 		
 		if (_pc) {
