@@ -147,8 +147,8 @@ io.sockets.on('connection', function (socket) {
 	        
 	        console.log('Sending room '+room+' out.');
 	        
-	        _clients[a].emit('next', {dest: a, room:room, success: true});
-	        _clients[b].emit('next', {dest: b, room:room, success: true});
+	        _clients[a].emit('next', {dest: a, participant:b, room:room, success: true});
+	        _clients[b].emit('next', {dest: b, participant:a, room:room, success: true});
 	        
 			delete _clients[a];
 			delete _clients[b];

@@ -284,7 +284,7 @@ var Meeting = function (socketioHost) {
             if (message.dest===_myID && _requestOpen) {
 	            console.log('Got answer to next request: '+message.success);
 	            if (message.success == true) {
-		            console.log("Received new room "+message.room);
+		            console.log("Received new room "+message.room+' with participant: '+message.participant);
 		            _requestOpen = false;
 					closeCurrentConnection();
 					joinRoom(message.room);
