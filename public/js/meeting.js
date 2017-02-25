@@ -29,6 +29,7 @@ var Meeting = function (socketioHost) {
     var _host = socketioHost;
     var _answer = false;
 	var _offer = false;
+	var _requestOpen = false;
 	
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
@@ -83,6 +84,7 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
+		_requestOpen = true;
         _defaultChannel.emit('next', {from:_myID, currentRoom:_room, hasLocalStream:(_localStream != null)});
     }
 	
@@ -279,10 +281,11 @@ var Meeting = function (socketioHost) {
         });
 		
 		defaultChannel.on('next', function (message){
-            if (message.dest===_myID) {
+            if (message.dest===_myID && _requestOpen) {
 	            console.log('Got answer to next request: '+message.success);
 	            if (message.success == true) {
 		            console.log("Received new room "+message.room);
+		            _requestOpen = false;
 					closeCurrentConnection();
 					joinRoom(message.room);
 	            } else {
