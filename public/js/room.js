@@ -4,7 +4,7 @@ var meeting;
 var name = 'Stranger';
 var avatar = 2;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
-var _occupied = false;
+var _allowNext = true;
 
 $(document).on('keydown',function(evt) {
     if (evt.keyCode == 27) {
@@ -117,12 +117,7 @@ $( document ).ready(function() {
 	);
 	
 	meeting.onNextFailed(function() {
-			console.log('Next failed. Trying again in 2s. _occupied ='+_occupied);
-			setTimeout(function(){
-				if(!_occupied) {
-					meeting.next();	
-				} 
-			}, 2000);
+			console.log('Next failed.');
 	    }
 	);
 	
@@ -134,7 +129,7 @@ $( document ).ready(function() {
 ////////////////////////////////////////////////////////////////////////////
 function joinedRoom() {
 	console.log('Joined room.');
-	_occupied = true;
+	_allowNext = true;
 }
 
 function addRemoteVideo(stream) {
@@ -153,8 +148,10 @@ function removeRemoteVideo() {
 }
 
 function next() {
-	_occupied = false;
-	meeting.next();
+	if (_allowNext) {
+		_allowNext = false;
+		meeting.next();	
+	}
 }
 
 
