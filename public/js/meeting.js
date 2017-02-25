@@ -30,6 +30,7 @@ var Meeting = function (socketioHost) {
     var _answer = false;
 	var _offer = false;
 	var _requestOpen = false;
+	var _participantID;
 	
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
@@ -84,10 +85,11 @@ var Meeting = function (socketioHost) {
 	 */
 	function next() {
 		console.log("Requesting next room...");
+		closeCurrentConnection();
+        _onParticipantHangupCallback()
+        
 		_requestOpen = true;
         _defaultChannel.emit('next', {from:_myID, currentRoom:_room, hasLocalStream:(_localStream != null)});
-        closeCurrentConnection();
-        _onParticipantHangupCallback()
     }
 	
     
@@ -288,7 +290,7 @@ var Meeting = function (socketioHost) {
 	            if (message.success == true) {
 		            console.log("Received new room "+message.room+' with participant: '+message.participant);
 		            _requestOpen = false;
-					closeCurrentConnection();
+		            _participantID = message.participant;
 					joinRoom(message.room);
 	            } else {
 		            console.log("Server couldn't find a free peer.");
@@ -322,6 +324,10 @@ var Meeting = function (socketioHost) {
                     console.log('Got ice candidate from '+message.from +' in private channel');
                     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label, candidate: message.candidate});
 					_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
+                } else if (message.type === 'p2pbye') {
+                    console.log('Got bye from '+message.from +' in private channel');
+                    closeCurrentConnection();
+                    _onParticipantHangupCallback() ;
                 }
             }
         });
@@ -475,6 +481,11 @@ var Meeting = function (socketioHost) {
     }
 
 	function closeCurrentConnection() {		
+		if (_room) {
+			console.log('Sending p2pbye message to '+_participantID);
+			_privateAnswerChannel.emit('message', {from:_myID, type:'p2pbye', dest:_participantID}); 
+		}
+		
 		_room = null;	
 		
 		if (_pc) {
@@ -491,6 +502,7 @@ var Meeting = function (socketioHost) {
         _remoteStream = null;
         _answer = false;
         _offer = false;
+        _participantID = null;
 	}
 	
     function hangup(from) {
