@@ -154,19 +154,32 @@ io.sockets.on('connection', function (socket) {
 		        b = _queue.shift();
 	        }
 	        
-	        var room = getRoom();
+	        if (a && b) {
+		        // We still have at least 2 peers left in the queue
+		    	var room = getRoom();
 	        
-	        console.log('Sending room '+room+' out to '+a+' and '+b);
+		        console.log('Sending room '+room+' out to '+a+' and '+b);
+		        
+		        _clients[a].emit('next', {dest: a, participant:b, room:room, success: true});
+		        _clients[b].emit('next', {dest: b, participant:a, room:room, success: true});
+		        
+				delete _clients[a];
+				delete _clients[b];   
+			
+				return; 
+	        }
 	        
-	        _clients[a].emit('next', {dest: a, participant:b, room:room, success: true});
-	        _clients[b].emit('next', {dest: b, participant:a, room:room, success: true});
-	        
-			delete _clients[a];
-			delete _clients[b];
-        } else {
-	        console.log('Not enough requests in the queue.');
-	        _clients[message.from].emit('next', {dest: message.from, success: false});
+	        // Only one connected peer exist in the queue. Put it back.
+	        if (a) {
+		        // put a back in the queue
+		        _queue.push(a);
+	        } else if (b) {
+		        _queue.push(b);
+	        }
         }
+	    
+	    console.log('Not enough requests in the queue.');
+	    _clients[message.from].emit('next', {dest: message.from, success: false});
         
         console.log('-------------------------------------------------------');
 	});
