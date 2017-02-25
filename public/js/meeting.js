@@ -86,6 +86,8 @@ var Meeting = function (socketioHost) {
 		console.log("Requesting next room...");
 		_requestOpen = true;
         _defaultChannel.emit('next', {from:_myID, currentRoom:_room, hasLocalStream:(_localStream != null)});
+        closeCurrentConnection();
+        _onParticipantHangupCallback()
     }
 	
     
@@ -472,7 +474,7 @@ var Meeting = function (socketioHost) {
         _pc.createAnswer(onSuccess(cnl), handleCreateAnswerError);
     }
 
-	function closeCurrentConnection() {
+	function closeCurrentConnection() {		
 		_room = null;	
 		
 		if (_pc) {
