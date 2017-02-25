@@ -282,10 +282,8 @@ var Meeting = function (socketioHost) {
 				createOffer(partID);
             } else if (message.type === 'bye' && message.room === _room) {
                 console.log('Bye received from '+ message.from+' for room '+message.room);
-				if (_room === message.room) {
-					console.log("Hanging up.");
-					hangup(message.from);	
-				}
+				console.log("Hanging up.");
+				hangup(message.from);	
             }
         });
 		
