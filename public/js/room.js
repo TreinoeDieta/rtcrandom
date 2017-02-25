@@ -117,14 +117,12 @@ $( document ).ready(function() {
 	);
 	
 	meeting.onNextFailed(function() {
-/*
 			console.log('Next failed. Trying again in 2s. _occupied ='+_occupied);
 			setTimeout(function(){
 				if(!_occupied) {
 					meeting.next();	
 				} 
 			}, 2000);
-*/
 	    }
 	);
 	
