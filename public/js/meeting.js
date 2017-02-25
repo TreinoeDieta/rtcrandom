@@ -248,14 +248,14 @@ var Meeting = function (socketioHost) {
 
         defaultChannel.on('joined', function (room){
             console.log('This peer has joined room ' + room);
-            defaultChannel.emit('message', {type:'newparticipant', from: _myID});
+            defaultChannel.emit('message', {type:'newparticipant', from: _myID, room:_room});
 			_onJoinedRoomCallback();
         });
         
         defaultChannel.on('message', function (message){
             console.log('Received message in default channel:', message);
             var partID = message.from;
-            if (message.type === 'newparticipant' && message.from != _myID) {
+            if (message.type === 'newparticipant' && message.from != _myID && message.room === _room) {
 				// Open a new communication channel to the new participant
 				console.log('Opening a new channel for offers to the new participant');
 				_offerChannel = openSignalingChannel(_room);
@@ -263,14 +263,14 @@ var Meeting = function (socketioHost) {
 				// Wait for answers (to offers) from the new participant
 				_offerChannel.on('message', function (msg){
 					if (msg.dest===_myID) {
-						if (msg.type === 'answer' && !_answer) {
+						if (msg.type === 'answer' && !_answer && msg.room === _room) {
 							console.log('Got answer from '+msg.from +' in offer channel');
 							_answer = true;
 							
 							_pc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
 															   setRemoteDescriptionSuccess, 
 															   setRemoteDescriptionError);
-						} else if (msg.type === 'candidate') {
+						} else if (msg.type === 'candidate' && msg.room === _room) {
 							var candidate = new RTCIceCandidate({sdpMLineIndex: msg.label, candidate: msg.candidate});
 							console.log('Got ice candidate from '+msg.from +' in offer channel');
 							_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
@@ -280,7 +280,7 @@ var Meeting = function (socketioHost) {
 
 				// Send an offer to the new participant
 				createOffer(partID);
-            } else if (message.type === 'bye') {
+            } else if (message.type === 'bye' && message.room === _room) {
                 console.log('Bye received from '+ message.from+' for room '+message.room);
 				if (_room === message.room) {
 					console.log("Hanging up.");
@@ -320,12 +320,12 @@ var Meeting = function (socketioHost) {
         privateAnswerChannel.on('message', function (message){
 			console.log('Received message in private channel:', message);
             if (message.dest===_myID) {
-                if(message.type === 'offer' && !_offer) {
+                if(message.type === 'offer' && !_offer && message.room === _room) {
                     console.log('Got offer from '+message.from +' in private channel');
                     _offer = true;
                     var to = message.from;
                     createAnswer(message, _privateAnswerChannel, to);
-                } else if (message.type === 'candidate') {
+                } else if (message.type === 'candidate' && message.room === _room) {
                     console.log('Got ice candidate from '+message.from +' in private channel');
                     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label, candidate: message.candidate});
 					_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
@@ -453,7 +453,7 @@ var Meeting = function (socketioHost) {
                 
                 _pc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionOfferError);  
                 console.log('Sending offer to channel '+ channel.name);
-                channel.emit('message', {snDescription: sessionDescription, from:_myID, type:'offer', dest:participantId});        
+                channel.emit('message', {snDescription: sessionDescription, from:_myID, type:'offer', dest:participantId, room:_room});        
             }
         }
 
@@ -478,7 +478,7 @@ var Meeting = function (socketioHost) {
 
                 _pc.setLocalDescription(sessionDescription, setLocalDescriptionSuccess, setLocalDescriptionAnswerError); 
                 console.log('Sending answer to channel '+ channel.name);
-                channel.emit('message', {snDescription:sessionDescription, from:_myID,  type:'answer', dest:to});
+                channel.emit('message', {snDescription:sessionDescription, from:_myID,  type:'answer', dest:to, room:_room});
             }
         }
 
@@ -566,7 +566,8 @@ var Meeting = function (socketioHost) {
                         id: event.candidate.sdpMid,
                         candidate: event.candidate.candidate,
                         from: _myID, 
-                        dest:to}
+                        dest:to,
+                        room:_room}
                     );
 
             } else {
