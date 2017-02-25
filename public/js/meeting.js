@@ -86,8 +86,8 @@ var Meeting = function (socketioHost) {
 	function next() {
 		console.log("Requesting next room...");
 		if (_room) {
-			console.log('Sending p2pbye message to '+_participantID);
-			_privateAnswerChannel.emit('message', {from:_myID, type:'p2pbye', dest:_participantID}); 
+			console.log('Sending p2pbye message to '+_participantID+ ' for room '+_room);
+			_privateAnswerChannel.emit('message', {from:_myID, type:'p2pbye', dest:_participantID, room: _room}); 
 		}
 		
 		closeCurrentConnection();
@@ -329,8 +329,8 @@ var Meeting = function (socketioHost) {
                     console.log('Got ice candidate from '+message.from +' in private channel');
                     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label, candidate: message.candidate});
 					_pc.addIceCandidate(candidate, addIceCandidateSuccess, addIceCandidateError);
-                } else if (message.type === 'p2pbye') {
-                    console.log('Got bye from '+message.from +' in private channel');
+                } else if (message.type === 'p2pbye' && message.room === _room) {
+                    console.log('Got bye from '+message.from +' in private channel for room '+message.room);
                     closeCurrentConnection();
                     _onParticipantHangupCallback() ;
                 }
