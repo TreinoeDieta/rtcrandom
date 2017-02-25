@@ -27,7 +27,8 @@ var Meeting = function (socketioHost) {
     var _onChatNotReadyCallback;
     var _onParticipantHangupCallback;
     var _host = socketioHost;
-    var _participantID;
+    var _answer = false;
+	var _offer = false;
 	
     ////////////////////////////////////////////////
     // PUBLIC FUNCTIONS
@@ -251,8 +252,10 @@ var Meeting = function (socketioHost) {
 				// Wait for answers (to offers) from the new participant
 				_offerChannel.on('message', function (msg){
 					if (msg.dest===_myID) {
-						if (msg.type === 'answer') {
+						if (msg.type === 'answer' && !_answer) {
 							console.log('Got answer from '+msg.from +' in offer channel');
+							_answer = true;
+							
 							_pc.setRemoteDescription(new RTCSessionDescription(msg.snDescription),
 															   setRemoteDescriptionSuccess, 
 															   setRemoteDescriptionError);
@@ -305,8 +308,9 @@ var Meeting = function (socketioHost) {
         privateAnswerChannel.on('message', function (message){
 			console.log('Received message in private channel:', message);
             if (message.dest===_myID) {
-                if(message.type === 'offer') {
+                if(message.type === 'offer' && !_offer) {
                     console.log('Got offer from '+message.from +' in private channel');
+                    _offer = true;
                     var to = message.from;
                     createAnswer(message, _privateAnswerChannel, to);
                 } else if (message.type === 'candidate') {
@@ -480,6 +484,8 @@ var Meeting = function (socketioHost) {
         }
 
         _remoteStream = null;
+        _answer = false;
+        _offer = false;
 	}
 	
     function hangup(from) {
