@@ -4,6 +4,7 @@ var meeting;
 var name = 'Stranger';
 var avatar = 2;
 var host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
+var _occupied = false;
 
 $(document).on('keydown',function(evt) {
     if (evt.keyCode == 27) {
@@ -31,7 +32,7 @@ $( document ).ready(function() {
 
 	var split = Split(['#a', '#b'], {
 		sizes: sizes,
-		minSize: [400,100],
+		minSize: [400,0],
 		gutterSize: 8,
 		cursor: 'col-resize',
 		onDragEnd: function () {
@@ -84,14 +85,14 @@ $( document ).ready(function() {
 	    }
 	);
 	
-	meeting.onRemoteVideo(function(stream, participantID) {
-	        addRemoteVideo(stream, participantID);  
+	meeting.onRemoteVideo(function(stream) {
+	        addRemoteVideo(stream);  
 	    }
 	);
 	
-	meeting.onParticipantHangup(function(participantID) {
-			// Someone just left the meeting. Remove the participants video
-			removeRemoteVideo(participantID);
+	meeting.onParticipantHangup(function() {
+			// Partner just left the meeting. Remove the remote video
+			removeRemoteVideo();
 		}
 	);
     
@@ -116,7 +117,12 @@ $( document ).ready(function() {
 	);
 	
 	meeting.onNextFailed(function() {
-
+			console.log('Next failed. Trying again in 2s. _occupied ='+_occupied);
+			setTimeout(function(){
+				if(!_occupied) {
+					meeting.next();	
+				} 
+			}, 2000);
 	    }
 	);
 	
@@ -127,24 +133,27 @@ $( document ).ready(function() {
 // VIDEO
 ////////////////////////////////////////////////////////////////////////////
 function joinedRoom() {
-
+	console.log('Joined room.');
+	_occupied = true;
 }
 
-function addRemoteVideo(stream, participantID) {
-	console.log("Room.addRemoteVideo "+stream+" for participantID "+ participantID);
+function addRemoteVideo(stream) {
+	console.log("Room.addRemoteVideo "+stream);
     $( "#remote-video" ).attr({"src": window.URL.createObjectURL(stream), "autoplay": "autoplay"});
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
 	$('#local-video-wrap').removeClass('single');
 }
 
-function removeRemoteVideo(participantID) {
+function removeRemoteVideo() {
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
 	$('#local-video-wrap').addClass('single');
+	next();
 }
 
 function next() {
+	_occupied = false;
 	meeting.next();
 }
 

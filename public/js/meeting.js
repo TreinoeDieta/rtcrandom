@@ -6,7 +6,6 @@
 var Meeting = function (socketioHost) { 
     var exports = {};
     
-    var _isInitiator = false;
     var _localStream;
     var _remoteStream;
     var _turnReady;
@@ -232,7 +231,7 @@ var Meeting = function (socketioHost) {
 		
         defaultChannel.on('created', function (room){
           console.log('Created room ' + room);
-          _isInitiator = true;
+          _onJoinedRoomCallback();
         });
 
         defaultChannel.on('joined', function (room){
@@ -467,8 +466,6 @@ var Meeting = function (socketioHost) {
     }
 
 	function closeCurrentConnection() {
-		_defaultChannel.emit('message',{type: 'bye', from:_myID, room:_room});
-
 		_room = null;	
 		
 		if (_pc) {
@@ -488,7 +485,7 @@ var Meeting = function (socketioHost) {
     function hangup(from) {
 		closeCurrentConnection();
      
-		_onParticipantHangupCallback(from);
+		_onParticipantHangupCallback();
     }
 
 
@@ -510,8 +507,10 @@ var Meeting = function (socketioHost) {
         console.log('ICE connection state change on PC:'+_pc.iceConnectionState);
         if(_pc.iceConnectionState == 'disconnected') {
             console.log('Disconnected on _pc');
+            _onParticipantHangupCallback();
         } else if(_pc.iceConnectionState == 'failed') {
             console.log('Failed on _pc');
+            _onParticipantHangupCallback();
         }
     }
     

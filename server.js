@@ -57,6 +57,7 @@ function printQueue() {
     for (var i = 0; i < 5; i++) {
     	console.log(i+': '+_queue[i]);
 	}
+	console.log('');
 }
 
 /**
@@ -94,11 +95,20 @@ io.sockets.on('connection', function (socket) {
         }
         
 		if (message.type=="bye") {
+			printQueue();
+			
 			console.log('Deleting user '+message.from+' from queue.');
 			delete _clients[message.from];
 			delete _isReady[message.from];
 			var index = _queue.indexOf(message.from);
-			_queue.splice(index, 1);
+			
+			console.log(message.from+' found at index '+index);
+			
+			if (index>=0) {
+				_queue.splice(index, 1);	
+			}
+			
+			printQueue();
 		}
 	});
     
