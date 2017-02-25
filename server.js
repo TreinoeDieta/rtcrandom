@@ -141,11 +141,22 @@ io.sockets.on('connection', function (socket) {
 
         if (_queue.length >= 2) {
 	        var a = _queue.shift();
+	       
+			// Remove any ghost peers that left without saying good bye
+	        while (_clients[a] && _clients[a].disconnected) {
+		        delete _clients[a];
+		        a = _queue.shift();
+	        }
+	        
 	        var b = _queue.shift();
+	        while (_clients[b] && _clients[b].disconnected) {
+		        delete _clients[b];
+		        b = _queue.shift();
+	        }
 	        
 	        var room = getRoom();
 	        
-	        console.log('Sending room '+room+' out.');
+	        console.log('Sending room '+room+' out to '+a+' and '+b);
 	        
 	        _clients[a].emit('next', {dest: a, participant:b, room:room, success: true});
 	        _clients[b].emit('next', {dest: b, participant:a, room:room, success: true});
