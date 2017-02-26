@@ -85,7 +85,13 @@
 			</div>
 	    </div>
 	    
-	    <footer><a href="/version.txt" target="blank">[build version]</a></footer>
+	    <footer>
+	    	<%if (environment == 'test') { %>
+				<a href="/version.txt" target="blank">[build version]</a>
+				<a href="/debug.log" target="blank">[debug log]</a>
+				<a href="/exceptions.log" target="blank">[exceptions log]</a>
+			<% } %>	    	
+	    </footer>
     </div>
 </body>
 </html>

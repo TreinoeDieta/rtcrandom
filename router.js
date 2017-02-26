@@ -8,9 +8,9 @@
  
 'use strict';
  
-module.exports=function(app, socketIoServer) {
+module.exports=function(app, socketIoServer, environment) {
     app.get('/',function(req,res){
-        res.render('room', {"hostAddress":socketIoServer});  
+        res.render('room', {'hostAddress': socketIoServer, 'environment': environment});  
     });
 	
 	app.get('/test',function(req,res){

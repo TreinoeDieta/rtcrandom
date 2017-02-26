@@ -22,7 +22,7 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 // SETUP SERVER
 ////////////////////////////////////////////////   
 var app = express();
-require('./router')(app, socketIoServer);
+require('./router')(app, socketIoServer, environment);
 
 // Static content (css, js, .png, etc) is placed in /public
 app.use(express.static(__dirname + '/public'));
