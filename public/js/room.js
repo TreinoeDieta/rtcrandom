@@ -46,6 +46,7 @@ $( document ).ready(function() {
       gutterSize: 8,
       cursor: 'row-resize'
     });
+    
 	
 	/////////////////////////////////
 	// CHAT
@@ -69,7 +70,6 @@ $( document ).ready(function() {
 	meeting = new Meeting(host);
 	
 	meeting.onLocalVideo(function(stream) {
-	        //alert(stream.getVideoTracks().length);
 	        document.querySelector('#local-video').src = window.URL.createObjectURL(stream);
     		
 	        $("#toggle-mic-label").on("click",function callback(e) {
@@ -77,8 +77,6 @@ $( document ).ready(function() {
     		});
     		
     		$("#toggle-cam-label").on("click",function callback(e) {
-	    		// TODO fix on to fast onclick
-	    		console.log('toggle');
 				toggleVideo();
     		});
     		
@@ -148,6 +146,7 @@ function removeRemoteVideo() {
 }
 
 function next() {
+	clearChat();
 	if (_allowNext) {
 		_allowNext = false;
 		meeting.next();	
@@ -244,13 +243,17 @@ function addChatBubble(msg, self) {
     $content.html(proccessedMessage);
     $($bubble).append($content);
     
-    var $chatMessages = $("#chatMessages");
+    var $chatMessages = $("#chat-messages");
     $chatMessages.append($messageWrapper);
     
     // Break the float
     $chatMessages.append("<div style='clear:both'></div>");
     
     $chatMessages.scrollTop($chatMessages.height())
+}
+
+function clearChat() {
+	 $("#chat-messages").empty();
 }
 
 /**

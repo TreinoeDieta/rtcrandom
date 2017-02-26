@@ -198,7 +198,7 @@ video {
 	overflow:hidden;
 }
 
-#chatMessages {
+#chat-messages {
 	position:absolute;
 	top:0;
 	width:100%;
@@ -225,6 +225,10 @@ video {
 	-ms-box-sizing:border-box;
 	box-sizing:border-box;
 }
+
+ #data-channel-send:disabled {
+	 color: #b6b6b6;
+ }
 
 #chat.visible #data-channel-send {
 	padding:1em;
