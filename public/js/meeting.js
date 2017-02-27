@@ -70,7 +70,7 @@ var Meeting = function (socketioHost) {
         
         _room = name;       
         
-        console.log('Request to join room', _room);
+        console.log('Request to join room '+ _room+ ' with _constraints: %j', _constraints);
         _defaultChannel.emit('join', {room:_room, from:_myID});
         
 		// Open up a private communication channel
@@ -520,7 +520,9 @@ var Meeting = function (socketioHost) {
         console.log('Adding local stream');
         _onLocalVideoCallback(stream);
         _localStream = stream;
-		
+		enableMic(_constraints.audio);
+        enableVideo(_constraints.video);
+        
 		_defaultChannel.emit('ready', {from:_myID});
     }
 
