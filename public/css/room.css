@@ -68,6 +68,16 @@ body {
 	box-sizing:border-box;
 }
 
+#logo {
+	display:inline-block;
+	float:left;
+	width: 10em;
+	height:3em;
+	background-image:url(../images/logo.svg);
+	background-size:contain;
+	background-repeat:no-repeat;
+}
+
 /********************** FOOTER **************************/
 footer {
 	text-align:center;
