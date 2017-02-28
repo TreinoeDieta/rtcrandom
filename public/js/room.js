@@ -139,6 +139,8 @@ function addRemoteVideo(stream) {
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
 	$('#local-video-wrap').removeClass('single');
+	
+	$("#chat-messages").append("<div class='on-remote-video-message' style='clear:both'>You are now chatting with a random stranger. Say hi!</div>");
 }
 
 function removeRemoteVideo() {

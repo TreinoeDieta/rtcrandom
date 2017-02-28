@@ -186,6 +186,9 @@ video {
 	border:1px red solid;
 }
 
+.on-remote-video-message {
+	padding: 1em;
+}
 /********************** VIDEO CONTROLS **************************/
 #video-controls {
 	display:table-row;
