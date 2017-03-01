@@ -4,6 +4,7 @@ var _name = 'Stranger';
 var _avatar = 1;
 var _host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
 var _allowNext = true;
+var _chatReady = false;
 
 $(document).on('keydown', function(evt) {
 	if (evt.keyCode == 27) {
@@ -24,7 +25,7 @@ $(document).ready(function() {
 	if (sizes) {
 		sizes = JSON.parse(sizes);
 	} else {
-		sizes = [80, 20]; // default sizes
+		sizes = [40, 60]; // default sizes
 	}
 	var split = Split(['#a', '#b'], {
 		sizes: sizes,
@@ -76,8 +77,10 @@ $(document).ready(function() {
 		if (e.keyCode == 13 && value != '') {
 			var message = value;
 			var messageObj = message + '_' + _avatar + ':' + _name;
-			_meeting.sendChatMessage(messageObj);
 			addChatBubble(messageObj, true);
+			
+			messageObj = 'chat:'+ messageObj;
+			_meeting.sendChatMessage(messageObj);
 			$(this).val('');
 			return false;
 		}
@@ -104,13 +107,24 @@ $(document).ready(function() {
 		removeRemoteVideo();
 	});
 	_meeting.onChatReady(function() {
+		_chatReady = true;
 		$("#data-channel-send").prop('disabled', false);
 	});
 	_meeting.onChatNotReady(function() {
+		_chatReady = false;
 		$("#data-channel-send").prop('disabled', true);
 	});
 	_meeting.onChatMessage(function(message) {
-		addChatBubble(message, false);
+		var split = message.indexOf(":");
+		var type = message.substring(0, split);
+		if (type === 'chat') {
+			addChatBubble(message.substring(split+1), false);
+		}
+		if (type === 'avatar') {
+			var id = message.substring(split+1);
+			updateChatAvatarIcons('left', id);
+		}
+		
 	});
 	_meeting.onJoinedRoom(function() {
 		joinedRoom();
@@ -214,6 +228,15 @@ function setAvatar(elemId, id) {
 	$("#"+elemId).addClass('selected');
 	$("#avatarsMenu").blur();	
 	$("#avatarsMenu").css('background-image', 'url(../images/avatars/' + id + '.png)');
+	
+	// Update any own existing avatar icons in chat 
+	updateChatAvatarIcons('right', _avatar);
+	
+	// Inform counterpart about avatar update
+	if (_chatReady) {
+		// Inform counterpart about the avatar change
+		_meeting.sendChatMessage('avatar:'+id);	
+	}
 }
 ////////////////////////////////////////////////////////////////////////////
 // CHAT
@@ -284,6 +307,25 @@ function addChatBubble(msg, self) {
 function clearChat() {
 	$("#chat-messages").empty();
 }
+
+function updateChatAvatarIcons(orientation, id) {
+	var avatarCells;
+	if (orientation === 'right') {
+		avatarCells = $(".avatarCell.right");
+	} else {
+		avatarCells = $(".avatarCell.left");
+	}
+	
+	if (avatarCells && avatarCells.length>0) {
+		for (var i = 0; i < avatarCells.length; i++) {
+			var $avatar = $(avatarCells[i]).children(":first");
+			$avatar.removeClass();
+			$avatar.addClass('avatar');
+			$avatar.addClass(getAvatarClassForId(id));
+		}	
+	}
+}
+
 /**
  * Given an id (1, 2, 3, 4, 5, 6) it returns the corresponding css class for the avatar in the messages field
  *

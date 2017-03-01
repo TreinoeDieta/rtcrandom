@@ -155,17 +155,16 @@ video {
 	width:20%;
 }
 
-#local-video-wrap:first-child:nth-last-child(2) {
+#local-video-wrap {
 	position:absolute;
 	bottom:2em;
 	right:2em;
 	height:auto;
 	margin:0;
-	padding:1px;
 	border-radius:0;
 }
 
-#local-video-wrap.single:first-child:nth-last-child(2) {
+#local-video-wrap.single {
 	width:50%;
 	top:50%;
 	left:50%;
@@ -188,7 +187,41 @@ video {
 
 .on-remote-video-message {
 	padding: 1em;
+	color: #27ad5f;
+	font-weight: 300;
 }
+/********************** VIDEO FULLSCREEN **************************/
+#videos-wrapper.fullscreen {
+	position: absolute;
+	top:0;
+	left:0;
+	width:100%;
+	z-index: 1000;
+}
+
+#local-video-wrap.fullscreen.single {
+	width: 100%;
+	top:0;
+	left:0;
+	margin:0
+}
+
+#local-video-wrap.fullscreen {
+	width: 20%;
+	bottom:2em;
+	right:2em;
+	margin:0;
+}
+
+#remote-video-wrap {
+	z-index: 2000;
+}
+
+.video-box.fullscreen {
+	border-radius:0;
+	border:none;
+}
+
 /********************** VIDEO CONTROLS **************************/
 #video-controls {
 	display:table-row;
