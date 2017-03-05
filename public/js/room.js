@@ -84,6 +84,12 @@ $(document).ready(function() {
 			_meeting.sendChatMessage(messageObj);
 			$(this).val('');
 			_typing = false;
+			
+			if ($("#partner-typing-message").length) {
+				$("#partner-typing-message").remove();
+				$("#chat-messages").append("<div id='partner-typing-message' class='' style='clear:both'>Partner is typing a message...</div>");
+			}
+
 			return false;
 		}
 	});
