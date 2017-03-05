@@ -190,6 +190,12 @@ video {
 	color: #27ad5f;
 	font-weight: 300;
 }
+
+#partner-typing-message {
+	padding: 1em;
+	color: #ababab;
+	font-weight: 300;	
+}
 /********************** VIDEO FULLSCREEN **************************/
 #videos-wrapper.fullscreen {
 	position: absolute;
@@ -256,9 +262,9 @@ video {
 
 #data-channel-send {
 	border:0;
-	height:100%;
+	height:calc(100% - 5px);
 	width:100%;
-	padding:1em;
+	padding: 5px;
 	font-size:1em;
 	font-weight:300;
 	color:#383838;

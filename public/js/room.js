@@ -5,6 +5,7 @@ var _avatar = 1;
 var _host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the server side when it is rendered
 var _allowNext = true;
 var _chatReady = false;
+var _typing = false;
 
 $(document).on('keydown', function(evt) {
 	if (evt.keyCode == 27) {
@@ -82,7 +83,21 @@ $(document).ready(function() {
 			messageObj = 'chat:'+ messageObj;
 			_meeting.sendChatMessage(messageObj);
 			$(this).val('');
+			_typing = false;
 			return false;
+		}
+	});
+	
+	$('#data-channel-send').on('input propertychange', function() {
+	 	if (this.value.length) {
+			// User is started typing a message...
+			if (!_typing) {
+				_typing = true;
+				_meeting.sendChatMessage('start_typing:');
+			}
+		} else  {
+			_typing = false;
+			_meeting.sendChatMessage('stop_typing:');
 		}
 	});
 	
@@ -118,13 +133,19 @@ $(document).ready(function() {
 		var split = message.indexOf(":");
 		var type = message.substring(0, split);
 		if (type === 'chat') {
+			$("#partner-typing-message").remove();
 			addChatBubble(message.substring(split+1), false);
 		}
 		if (type === 'avatar') {
 			var id = message.substring(split+1);
 			updateChatAvatarIcons('left', id);
 		}
-		
+		if (type === 'start_typing') {
+			$("#chat-messages").append("<div id='partner-typing-message' class='' style='clear:both'>Partner is typing a message...</div>");
+		}
+		if (type === 'stop_typing') {
+			$("#partner-typing-message").remove();
+		}		
 	});
 	_meeting.onJoinedRoom(function() {
 		joinedRoom();
