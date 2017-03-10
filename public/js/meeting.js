@@ -425,7 +425,7 @@ var Meeting = function (socketioHost) {
 
         _pc = new RTCPeerConnection(_pcConfig);
         _pc.onicecandidate = handleIceCandidateAnswerWrapper(_offerChannel, participantId);
-        _pc.ontrack = handleRemoteStreamAdded(participantId); // .onaddstream
+        _pc.onaddstream = handleRemoteStreamAdded(participantId); // .onaddstream or newer version: ontrack
         _pc.onremovestream = handleRemoteStreamRemoved; 
         _pc.addStream(_localStream);
         _pc.oniceconnectionstatechange = handleIceConnectionStateChangePC;
@@ -461,8 +461,8 @@ var Meeting = function (socketioHost) {
     function createAnswer(sdp, cnl, to) {
         console.log('Creating answer for peer '+to);
         _pc = new RTCPeerConnection(_pcConfig);
-        _pc.onicecandidate = handleIceCandidateAnswerWrapper(cnl, to);
-        _pc.ontrack = handleRemoteStreamAdded(to); // .onaddstream
+        _pc.onaddstream = handleIceCandidateAnswerWrapper(cnl, to);
+        _pc.onaddstream = handleRemoteStreamAdded(to); // .onaddstream or newer version: ontrack
         _pc.onremovestream = handleRemoteStreamRemoved;
         _pc.addStream(_localStream);
         _pc.setRemoteDescription(new RTCSessionDescription(sdp.snDescription), setRemoteDescriptionSuccess, setRemoteDescriptionError);
@@ -527,20 +527,24 @@ var Meeting = function (socketioHost) {
     }
 
     function handleIceConnectionStateChangePC(event) {
-        console.log('ICE connection state change on PC:'+_pc.iceConnectionState);
-        if(_pc.iceConnectionState == 'disconnected') {
-            console.log('Disconnected on _pc');
-            _onParticipantHangupCallback();
-        } else if(_pc.iceConnectionState == 'failed') {
-            console.log('Failed on _pc');
-            _onParticipantHangupCallback();
-        }
+	    if (_pc) {
+			console.log('ICE connection state change on PC:'+_pc.iceConnectionState);
+	        if(_pc.iceConnectionState == 'disconnected') {
+	            console.log('Disconnected on _pc');
+	            _onParticipantHangupCallback();
+	        } else if(_pc.iceConnectionState == 'failed') {
+	            console.log('Failed on _pc');
+	            _onParticipantHangupCallback();
+	        }   
+	    }
     }
     
     function handleRemoteStreamRemoved(event) {
         console.log('Remote stream removed. Event: ', event);
     }
 
+/*
+	// Only works with .ontrack
     function handleRemoteStreamAdded(from) {
 	    return function(event) {
         	console.log(event.track.kind+' remote stream added from '+from);
@@ -551,6 +555,19 @@ var Meeting = function (socketioHost) {
 
             if (event.track.kind == "video") {
                 addRemoteVideo(_remoteStream, from);
+            }
+            
+        }
+    }
+*/
+
+	function handleRemoteStreamAdded(from) {
+	    return function(event) {
+        	console.log('Remote stream added from '+from);
+		
+            if (!_remoteStream) {
+               _remoteStream = event.stream; 
+               addRemoteVideo(_remoteStream, from);
             }
             
         }

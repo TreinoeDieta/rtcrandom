@@ -6,6 +6,7 @@ var _host = HOST_ADDRESS; // HOST_ADDRESS gets injected into room.ejs from the s
 var _allowNext = true;
 var _chatReady = false;
 var _typing = false;
+var _hasRemoteVideo = false;
 
 $(document).on('keydown', function(evt) {
 	if (evt.keyCode == 27) {
@@ -35,6 +36,9 @@ $(document).ready(function() {
 		cursor: 'col-resize',
 		onDragEnd: function() {
 			localStorage.setItem('split-sizes', JSON.stringify(split.getSizes()));
+		},
+		onDrag: function() {
+			positionLocalVideo();
 		}
 	});
 	Split(['#e', '#f'], {
@@ -110,61 +114,93 @@ $(document).ready(function() {
 	/////////////////////////////////
 	// MEETING
 	/////////////////////////////////
-	_meeting = new Meeting(_host);
-	_meeting.onLocalVideo(function(stream) {
-		document.querySelector('#local-video').src = window.URL.createObjectURL(stream);
-		$("#toggle-mic-label").on("click", function callback(e) {
-			toggleMic();
+	AdapterJS.webRTCReady(function(isUsingPlugin) {
+		_meeting = new Meeting(_host);
+		_meeting.onLocalVideo(function(stream) {
+			// document.querySelector('#local-video').src = window.URL.createObjectURL(stream);
+			attachMediaStream(document.querySelector('#local-video'), stream); 
+			$("#toggle-mic-label").on("click", function callback(e) {
+				toggleMic();
+			});
+			$("#toggle-cam-label").on("click", function callback(e) {
+				toggleVideo();
+			});
+			positionLocalVideo();
 		});
-		$("#toggle-cam-label").on("click", function callback(e) {
-			toggleVideo();
+		_meeting.onRemoteVideo(function(stream) {
+			addRemoteVideo(stream);
 		});
+		_meeting.onParticipantHangup(function() {
+			// Partner just left the meeting. Remove the remote video
+			removeRemoteVideo();
+		});
+		_meeting.onChatReady(function() {
+			_chatReady = true;
+			$("#data-channel-send").prop('disabled', false);
+		});
+		_meeting.onChatNotReady(function() {
+			_chatReady = false;
+			$("#data-channel-send").prop('disabled', true);
+		});
+		_meeting.onChatMessage(function(message) {
+			var split = message.indexOf(":");
+			var type = message.substring(0, split);
+			if (type === 'chat') {
+				$("#partner-typing-message").remove();
+				addChatBubble(message.substring(split+1), false);
+			}
+			if (type === 'avatar') {
+				var id = message.substring(split+1);
+				updateChatAvatarIcons('left', id);
+			}
+			if (type === 'start_typing') {
+				$("#chat-messages").append("<div id='partner-typing-message' class='' style='clear:both'>Partner is typing a message...</div>");
+			}
+			if (type === 'stop_typing') {
+				$("#partner-typing-message").remove();
+			}		
+		});
+		_meeting.onJoinedRoom(function() {
+			joinedRoom();
+		});
+		_meeting.onNextFailed(function() {
+			console.log('Next failed.');
+		});
+		_meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
 	});
-	_meeting.onRemoteVideo(function(stream) {
-		addRemoteVideo(stream);
-	});
-	_meeting.onParticipantHangup(function() {
-		// Partner just left the meeting. Remove the remote video
-		removeRemoteVideo();
-	});
-	_meeting.onChatReady(function() {
-		_chatReady = true;
-		$("#data-channel-send").prop('disabled', false);
-	});
-	_meeting.onChatNotReady(function() {
-		_chatReady = false;
-		$("#data-channel-send").prop('disabled', true);
-	});
-	_meeting.onChatMessage(function(message) {
-		var split = message.indexOf(":");
-		var type = message.substring(0, split);
-		if (type === 'chat') {
-			$("#partner-typing-message").remove();
-			addChatBubble(message.substring(split+1), false);
-		}
-		if (type === 'avatar') {
-			var id = message.substring(split+1);
-			updateChatAvatarIcons('left', id);
-		}
-		if (type === 'start_typing') {
-			$("#chat-messages").append("<div id='partner-typing-message' class='' style='clear:both'>Partner is typing a message...</div>");
-		}
-		if (type === 'stop_typing') {
-			$("#partner-typing-message").remove();
-		}		
-	});
-	_meeting.onJoinedRoom(function() {
-		joinedRoom();
-	});
-	_meeting.onNextFailed(function() {
-		console.log('Next failed.');
-	});
-	_meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
 	
 }); // end of document.ready
 ////////////////////////////////////////////////////////////////////////////
 // VIDEO & MICROPHONE
 ////////////////////////////////////////////////////////////////////////////
+function positionLocalVideo() {	
+	if (_hasRemoteVideo === true){		
+		var $remoteVideoWrap = $('#remote-video-wrap');
+		var remoteVideoWrapWidth = $remoteVideoWrap.outerWidth(true);
+		var remoteVideoWrapHeight = $remoteVideoWrap.outerHeight(true);
+		var remoteVideoHeight = remoteVideoWrapWidth * (3/4);
+		var remoteVideoTop = (remoteVideoWrapHeight - remoteVideoHeight)/2;
+		
+		var $localVideoWrap = $('#local-video-wrap');
+		$localVideoWrap.removeAttr( 'style' );
+		
+		var localVideoWrapWidth = $localVideoWrap.outerWidth(true);
+		var localVideoWrapHeight = $localVideoWrap.outerHeight(true);
+		var localVideoHeight = localVideoWrapWidth * (3/4);
+		
+		var localVideoTop = remoteVideoTop + remoteVideoHeight - localVideoHeight - 20;
+		var $localVideo = $('#local-video');
+		$localVideoWrap.css({top: localVideoTop, right: 20, position:'absolute'});
+		$localVideo.css({width: localVideoWrapWidth, height: localVideoWrapHeight}); 
+	} else {
+		var $localVideoWrap = $('#local-video-wrap');
+		var $localVideo = $('#local-video');
+		$localVideoWrap.removeAttr( 'style' );
+		
+		$localVideoWrap.css({top: '50%', left: '50%', width:'50%', 	"margin-top":'-19%', "margin-left":'-25%'});
+		$localVideo.css({width: '100%', height: 'auto'}); 
+	}
+}
 
 function joinedRoom() {
 	console.log('Joined room.');
@@ -172,19 +208,32 @@ function joinedRoom() {
 }
 
 function addRemoteVideo(stream) {
+	_hasRemoteVideo = true;
+	
 	console.log("Room.addRemoteVideo " + stream);
-	$("#remote-video").attr({
-		"src": window.URL.createObjectURL(stream),
-		"autoplay": "autoplay"
-	});
+	// $("#remote-video").attr({ "src": window.URL.createObjectURL(stream), "autoplay": "autoplay" });
+	
+	// Remove old video objects
+	$("#remote-video").remove();
+	
+	// Create new one and add to DOM
+	var $video = $("<video class='video-box' id='remote-video' autoplay></video>");
+	$('#remote-video-wrap').append($video);
+	
+	var remoteVideoElement = attachMediaStream(document.querySelector('#remote-video'), stream); 
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
 	$('#local-video-wrap').removeClass('single');
 	
 	$("#chat-messages").append("<div class='on-remote-video-message' style='clear:both'>You are now chatting with a random stranger. Say hi!</div>");
+	
+	positionLocalVideo();
 }
 
 function removeRemoteVideo() {
+	_hasRemoteVideo = false;
+	positionLocalVideo();
+	
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
 	$('#local-video-wrap').addClass('single');
@@ -192,6 +241,7 @@ function removeRemoteVideo() {
 }
 
 function next() {
+	_hasRemoteVideo = false;
 	clearChat();
 	if (_allowNext) {
 		_allowNext = false;
