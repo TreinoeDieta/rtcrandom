@@ -19,6 +19,11 @@ $(document).on('keyup', function(evt) {
 		next();
 	}
 });
+
+window.addEventListener('resize', function(event){
+  positionLocalVideo();
+});
+
 $(document).ready(function() {
 	/////////////////////////////////
 	// SPLIT VIEW

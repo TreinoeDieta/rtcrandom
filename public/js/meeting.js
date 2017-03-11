@@ -606,6 +606,11 @@ var Meeting = function (socketioHost) {
 		  	_sendChannel.onmessage = handleMessage;
 		  	_sendChannel.onopen = handleReceiveChannelStateChange(id);
 		  	_sendChannel.onclose = handleReceiveChannelStateChange(id);
+		  	
+		  	// Needed for Safari/Temasys plugin. Safari doesn't call _sendChannel.onopen 
+		  	var readyState = _sendChannel.readyState;
+		  	var open = checkIfOpenChannel();
+		  	enableMessageInterface(open);
 	  	}
 	}
 	
