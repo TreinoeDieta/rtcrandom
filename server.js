@@ -26,7 +26,7 @@ function requireHTTPS(req, res, next) {
         if (environment === 'test' || environment === 'production') {
 	        var redirect = 'https://' + req.get('host') + req.url;
 	        logger.info("Non secure URL accessed. redirecting to "+redirect);
-	        return res.redirect(redirect);
+	        //return res.redirect(redirect);
         }
     }
     next();
