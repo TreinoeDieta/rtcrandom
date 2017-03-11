@@ -21,22 +21,21 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 ////////////////////////////////////////////////
 // SETUP SERVER
 ////////////////////////////////////////////////   
-function requireHTTPS(req, res, next) {
-    if (!req.secure) {
-        if (environment === 'test' || environment === 'production') {
-	        var redirect = 'https://' + req.get('host') + req.url;
-	        logger.info("Non secure URL accessed. redirecting to "+redirect);
-	        //return res.redirect(redirect);
-        }
-    }
-    next();
+function redirectSec(req, res, next) {
+  if (req.headers['x-forwarded-proto'] == 'http') {
+	  var redirect = 'https://' + req.headers.host + req.path;
+	  logger.info('Redirect to:'+redirect);
+      res.redirect(redirect);
+  } else {
+      return next();
+  }
 }
 
 
 
 var app = express();
 
-app.use(requireHTTPS);
+app.use(redirectSec);
 
 require('./router')(app, socketIoServer, environment);
 
