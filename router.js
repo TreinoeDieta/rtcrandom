@@ -13,6 +13,7 @@ module.exports = function(app, socketIoServer, environment) {
 			'environment': environment
 		});
 	});
+	
 	app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
 		var hash = req.params.challengeHash;
 		res.send(hash);
