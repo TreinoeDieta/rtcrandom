@@ -21,7 +21,23 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 ////////////////////////////////////////////////
 // SETUP SERVER
 ////////////////////////////////////////////////   
+function requireHTTPS(req, res, next) {
+    if (!req.secure) {
+        if (environment === 'test' || environment === 'production') {
+	        var redirect = 'https://' + req.get('host') + req.url;
+	        logger.info("Non secure URL accessed. redirecting to "+redirect);
+	        return res.redirect(redirect);
+        }
+    }
+    next();
+}
+
+
+
 var app = express();
+
+app.use(requireHTTPS);
+
 require('./router')(app, socketIoServer, environment);
 
 // Static content (css, js, .png, etc) is placed in /public
