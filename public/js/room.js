@@ -202,8 +202,17 @@ function positionLocalVideo() {
 		var $localVideo = $('#local-video');
 		$localVideoWrap.removeAttr( 'style' );
 		
-		$localVideoWrap.css({top: '50%', left: '50%', width:'50%', 	"margin-top":'-19%', "margin-left":'-25%'});
+		$localVideoWrap.css({top: '50%', left: '50%', width:'50%', 	"margin-top":'-12%', "margin-left":'-25%'});
 		$localVideo.css({width: '100%', height: 'auto'}); 
+		
+		
+		var localVideoWrapWidth = $localVideoWrap.outerWidth(true);
+		var localVideoWrapHeight = $localVideoWrap.outerHeight(true);
+		var localVideoHeight = localVideoWrapWidth * (3/4);
+		var $spinner = $('#spinner-loader-center');
+		var spinnerHeight = $spinner.outerHeight(true);
+		var spinnerTop = $localVideoWrap.offset().top + (localVideoHeight - spinnerHeight)/2 - spinnerHeight/2;
+		$spinner.css({top: '50%', left: '50%', "margin-top":'-40px', "margin-left":'-40px'});
 	}
 }
 

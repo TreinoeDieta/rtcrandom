@@ -71,13 +71,20 @@ body {
 #logo {
 	display:inline-block;
 	float:left;
-	width: 10em;
+	width: 20em;
 	height:3em;
 	background-image:url(../images/logo.svg);
 	background-size:contain;
 	background-repeat:no-repeat;
 }
 
+.fb-share-button {
+	display:inline-block;
+	float:right;
+	height:3em;
+	line-height: 2.5em;
+	margin-right:2em;
+}
 /********************** FOOTER **************************/
 footer {
 	text-align:center;
