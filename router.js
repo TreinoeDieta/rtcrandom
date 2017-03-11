@@ -15,7 +15,7 @@ module.exports = function(app, socketIoServer, environment) {
 	});
 	
 	app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
-		var hash = req.params.challengeHash;
+		var hash = req.params.challengeHash+'.im3xdwOnE4siuDOLKh9D_aLGIuKulPmTzzJgkvhCO5E';
 		res.send(hash);
 	});
 }
