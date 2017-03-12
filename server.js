@@ -24,11 +24,14 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 function redirectSec(req, res, next) {
 	logger.info(req.path+' requested. x-forwarded-proto= '+ req.headers['x-forwarded-proto']);
 	if (req.headers['x-forwarded-proto'] == 'http') {
-	  var redirect = 'https://' + req.headers.host + req.path;
-	  logger.info('Redirect to:'+redirect);
-	  res.redirect(307,redirect);
+	  	var redirect = 'https://' + req.headers.host + req.path;
+	  	logger.info('Redirect to:'+redirect);
+	  	res.redirect(redirect);
 	} else {
-	  return next();
+		res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+		res.header('Expires', '-1');
+		res.header('Pragma', 'no-cache');
+		return next();
 	}
 }
 
@@ -36,8 +39,6 @@ function redirectSec(req, res, next) {
 
 
 var app = express();
-
-app.disable('etag');
 
 require('./router')(app, socketIoServer, environment);
 
