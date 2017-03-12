@@ -21,30 +21,32 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 ////////////////////////////////////////////////
 // SETUP SERVER
 ////////////////////////////////////////////////   
-/*
 function redirectSec(req, res, next) {
-  if (req.headers['x-forwarded-proto'] == 'http') {
+	logger.info(req.path+' requested. x-forwarded-proto= '+ req.headers['x-forwarded-proto']);
+	if (req.headers['x-forwarded-proto'] == 'http') {
 	  var redirect = 'https://' + req.headers.host + req.path;
 	  logger.info('Redirect to:'+redirect);
-      res.redirect(redirect);
-  } else {
-      return next();
-  }
+	  res.redirect(redirect);
+	} else {
+	  return next();
+	}
 }
-*/
+
 
 
 
 var app = express();
 
-//app.use(redirectSec);
 
 require('./router')(app, socketIoServer, environment);
+
+app.use(redirectSec);
 
 // Static content (css, js, .png, etc) is placed in /public
 app.use(express.static(__dirname + '/public'));
 
 app.use(cors());
+
 	
 // Location of our views
 app.set('views',__dirname + '/views');
