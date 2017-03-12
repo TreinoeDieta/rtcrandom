@@ -37,6 +37,7 @@ function redirectSec(req, res, next) {
 
 var app = express();
 
+app.disable('etag');
 
 require('./router')(app, socketIoServer, environment);
 
