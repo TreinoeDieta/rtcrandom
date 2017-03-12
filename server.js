@@ -22,7 +22,6 @@ var socketIoServer = process.env.OPENSHIFT_DOMAIN || '127.0.0.1:8080';
 // SETUP SERVER
 ////////////////////////////////////////////////   
 function redirectSec(req, res, next) {
-	logger.info(req.path+' requested. x-forwarded-proto= '+ req.headers['x-forwarded-proto']);
 	if (req.headers['x-forwarded-proto'] == 'http') {
 	  	var redirect = 'https://' + req.headers.host + req.path;
 	  	logger.info('Redirect to:'+redirect);
