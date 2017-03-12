@@ -26,7 +26,7 @@ function redirectSec(req, res, next) {
 	if (req.headers['x-forwarded-proto'] == 'http') {
 	  var redirect = 'https://' + req.headers.host + req.path;
 	  logger.info('Redirect to:'+redirect);
-	  res.redirect(redirect);
+	  res.redirect(307,redirect);
 	} else {
 	  return next();
 	}
