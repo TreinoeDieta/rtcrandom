@@ -25,7 +25,7 @@
     <!-- Overlay -->
     <script src="/js/lib/modernizr.custom.js"></script>
     <script src="/js/lib/classie.js"></script>
-    
+    <link rel="stylesheet" type="text/css" href="/css/overlay.css" />
     
     <title>Video Conference</title>
 </head>
@@ -43,7 +43,7 @@
 	</script>
 
 	<div id="header">
-		<span id="logo"></span>
+		<span class="logo"></span>
 		<button id="next-button" type="button" onclick="next()" class="button">Next</button>
 		<div tabindex="0" id="avatarsMenu" class="menuIcon bubbleMenu">
 			<div id="avatarsContent" class="bubbleMenuContent">
@@ -128,5 +128,23 @@
 			<% } %>	    	
 	    </footer>
     </div>
+    
+    <div class="overlay overlay-contentpush">
+    	<div class="overlay-cell">
+	    	<section>
+	    		<span class="logo"></span>
+		    	Tengmo is a great way to meet new friends. When you use Tengmo, 
+		    	we pick someone else at random and let you talk one-on-one. 
+		    	To help you stay safe, chats are anonymous unless you tell someone 
+		    	who you are, and you can stop a chat at any time.
+				<nav>
+					<ul>
+						<li>
+						<button id="next-button" class="button overlay-close" type="button">Start</button>
+					</ul>
+				</nav>
+			</section>
+		</div>
+	</div>		
 </body>
 </html>

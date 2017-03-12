@@ -7,6 +7,17 @@ var _allowNext = true;
 var _chatReady = false;
 var _typing = false;
 var _hasRemoteVideo = false;
+/////////////////////////////////
+// OVERLAY
+/////////////////////////////////
+var _container;
+var _triggerBttn;
+var _overlay;
+var _startBttn;
+var _transEndEventNames;
+var _transEndEventName;
+var _support;
+
 
 $(document).on('keydown', function(evt) {
 	if (evt.keyCode == 27) {
@@ -19,12 +30,30 @@ $(document).on('keyup', function(evt) {
 		next();
 	}
 });
-
-window.addEventListener('resize', function(event){
-  positionLocalVideo();
+window.addEventListener('resize', function(event) {
+	positionLocalVideo();
 });
-
 $(document).ready(function() {
+	/////////////////////////////////
+	// OVERLAY
+	/////////////////////////////////	
+	_container = document.getElementById('container');
+	_triggerBttn = document.getElementById('trigger-overlay'); 
+	_overlay = document.querySelector('div.overlay'); 
+	_startBttn = _overlay.querySelector('button.overlay-close');
+	_transEndEventNames = {
+		'WebkitTransition': 'webkitTransitionEnd',
+		'MozTransition': 'transitionend',
+		'OTransition': 'oTransitionEnd',
+		'msTransition': 'MSTransitionEnd',
+		'transition': 'transitionend'
+	};
+	_transEndEventName = _transEndEventNames[Modernizr.prefixed('transition')];
+	_support = {
+		transitions: Modernizr.csstransitions
+	};
+	
+	_startBttn.addEventListener( 'click', start );
 	/////////////////////////////////
 	// SPLIT VIEW
 	/////////////////////////////////	
@@ -52,32 +81,25 @@ $(document).ready(function() {
 		gutterSize: 8,
 		cursor: 'row-resize'
 	});
-	
-	
 	/////////////////////////////////
 	// AVATARS
 	/////////////////////////////////	
 	// Bind onclick for every avatar element in the avatar selection bubble
-    for (var id=1; id<=6; id++) {
-	    var elemId = getElementIdForAvatarId(id);
-	    
-	    var onclickWrapper = function(id) {
-		    return function callback() {
-		    	var avatarId = id;
-				setAvatar(this.id, avatarId);
-    		}
-	    }
-	    
-	    $("#"+elemId).on("click", onclickWrapper(id));   
-    }
-    
-    setAvatar('avatar-'+_avatar, _avatar);
-    
+	for (var id = 1; id <= 6; id++) {
+		var elemId = getElementIdForAvatarId(id);
+		var onclickWrapper = function(id) {
+				return function callback() {
+					var avatarId = id;
+					setAvatar(this.id, avatarId);
+				}
+			}
+		$("#" + elemId).on("click", onclickWrapper(id));
+	}
+	setAvatar('avatar-' + _avatar, _avatar);
 	// When the #avatarsMenu gets focus position the appearing bubble next to #avatarsMenu
-	$('#avatarsMenu').bind('focus', function(){
-	    positionAvatarMenu();
+	$('#avatarsMenu').bind('focus', function() {
+		positionAvatarMenu();
 	});
-		
 	/////////////////////////////////
 	// CHAT
 	/////////////////////////////////	
@@ -88,34 +110,29 @@ $(document).ready(function() {
 			var message = value;
 			var messageObj = message + '_' + _avatar + ':' + _name;
 			addChatBubble(messageObj, true);
-			
-			messageObj = 'chat:'+ messageObj;
+			messageObj = 'chat:' + messageObj;
 			_meeting.sendChatMessage(messageObj);
 			$(this).val('');
 			_typing = false;
-			
 			if ($("#partner-typing-message").length) {
 				$("#partner-typing-message").remove();
 				$("#chat-messages").append("<div id='partner-typing-message' class='' style='clear:both'>Partner is typing a message...</div>");
 			}
-
 			return false;
 		}
 	});
-	
 	$('#data-channel-send').on('input propertychange', function() {
-	 	if (this.value.length) {
+		if (this.value.length) {
 			// User is started typing a message...
 			if (!_typing) {
 				_typing = true;
 				_meeting.sendChatMessage('start_typing:');
 			}
-		} else  {
+		} else {
 			_typing = false;
 			_meeting.sendChatMessage('stop_typing:');
 		}
 	});
-	
 	/////////////////////////////////
 	// MEETING
 	/////////////////////////////////
@@ -123,7 +140,7 @@ $(document).ready(function() {
 		_meeting = new Meeting(_host);
 		_meeting.onLocalVideo(function(stream) {
 			// document.querySelector('#local-video').src = window.URL.createObjectURL(stream);
-			attachMediaStream(document.querySelector('#local-video'), stream); 
+			attachMediaStream(document.querySelector('#local-video'), stream);
 			$("#toggle-mic-label").on("click", function callback(e) {
 				toggleMic();
 			});
@@ -152,10 +169,10 @@ $(document).ready(function() {
 			var type = message.substring(0, split);
 			if (type === 'chat') {
 				$("#partner-typing-message").remove();
-				addChatBubble(message.substring(split+1), false);
+				addChatBubble(message.substring(split + 1), false);
 			}
 			if (type === 'avatar') {
-				var id = message.substring(split+1);
+				var id = message.substring(split + 1);
 				updateChatAvatarIcons('left', id);
 			}
 			if (type === 'start_typing') {
@@ -163,7 +180,7 @@ $(document).ready(function() {
 			}
 			if (type === 'stop_typing') {
 				$("#partner-typing-message").remove();
-			}		
+			}
 		});
 		_meeting.onJoinedRoom(function() {
 			joinedRoom();
@@ -171,48 +188,97 @@ $(document).ready(function() {
 		_meeting.onNextFailed(function() {
 			console.log('Next failed.');
 		});
-		_meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
+		
 	});
 	
+	
+	toggleOverlay();
 }); // end of document.ready
+////////////////////////////////////////////////////////////////////////////
+// OVERLAY
+////////////////////////////////////////////////////////////////////////////
+
+function toggleOverlay() {
+	if (classie.has(_overlay, 'open')) {
+		classie.remove(_overlay, 'open');
+		classie.remove(_container, 'overlay-open');
+		classie.add(_overlay, 'close');
+		var onEndTransitionFn = function(ev) {
+				if (_support.transitions) {
+					if (ev.propertyName !== 'visibility') return;
+					this.removeEventListener(_transEndEventName, onEndTransitionFn);
+				}
+				classie.remove(_overlay, 'close');
+			};
+		if (_support.transitions) {
+			_overlay.addEventListener(_transEndEventName, onEndTransitionFn);
+		} else {
+			onEndTransitionFn();
+		}
+	} else if (!classie.has(_overlay, 'close')) {
+		classie.add(_overlay, 'open');
+		classie.add(_container, 'overlay-open');
+	}
+}
+
+function start() {
+	toggleOverlay();
+	_meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
+}
 ////////////////////////////////////////////////////////////////////////////
 // VIDEO & MICROPHONE
 ////////////////////////////////////////////////////////////////////////////
-function positionLocalVideo() {	
-	if (_hasRemoteVideo === true){		
+
+function positionLocalVideo() {
+	if (_hasRemoteVideo === true) {
 		var $remoteVideoWrap = $('#remote-video-wrap');
 		var remoteVideoWrapWidth = $remoteVideoWrap.outerWidth(true);
 		var remoteVideoWrapHeight = $remoteVideoWrap.outerHeight(true);
-		var remoteVideoHeight = remoteVideoWrapWidth * (3/4);
-		var remoteVideoTop = (remoteVideoWrapHeight - remoteVideoHeight)/2;
-		
+		var remoteVideoHeight = remoteVideoWrapWidth * (3 / 4);
+		var remoteVideoTop = (remoteVideoWrapHeight - remoteVideoHeight) / 2;
 		var $localVideoWrap = $('#local-video-wrap');
-		$localVideoWrap.removeAttr( 'style' );
-		
+		$localVideoWrap.removeAttr('style');
 		var localVideoWrapWidth = $localVideoWrap.outerWidth(true);
 		var localVideoWrapHeight = $localVideoWrap.outerHeight(true);
-		var localVideoHeight = localVideoWrapWidth * (3/4);
-		
+		var localVideoHeight = localVideoWrapWidth * (3 / 4);
 		var localVideoTop = remoteVideoTop + remoteVideoHeight - localVideoHeight - 20;
 		var $localVideo = $('#local-video');
-		$localVideoWrap.css({top: localVideoTop, right: 20, position:'absolute'});
-		$localVideo.css({width: localVideoWrapWidth, height: localVideoWrapHeight}); 
+		$localVideoWrap.css({
+			top: localVideoTop,
+			right: 20,
+			position: 'absolute'
+		});
+		$localVideo.css({
+			width: localVideoWrapWidth,
+			height: localVideoWrapHeight
+		});
 	} else {
 		var $localVideoWrap = $('#local-video-wrap');
 		var $localVideo = $('#local-video');
-		$localVideoWrap.removeAttr( 'style' );
-		
-		$localVideoWrap.css({top: '50%', left: '50%', width:'50%', 	"margin-top":'-12%', "margin-left":'-25%'});
-		$localVideo.css({width: '100%', height: 'auto'}); 
-		
-		
+		$localVideoWrap.removeAttr('style');
+		$localVideoWrap.css({
+			top: '50%',
+			left: '50%',
+			width: '50%',
+			"margin-top": '-12%',
+			"margin-left": '-25%'
+		});
+		$localVideo.css({
+			width: '100%',
+			height: 'auto'
+		});
 		var localVideoWrapWidth = $localVideoWrap.outerWidth(true);
 		var localVideoWrapHeight = $localVideoWrap.outerHeight(true);
-		var localVideoHeight = localVideoWrapWidth * (3/4);
+		var localVideoHeight = localVideoWrapWidth * (3 / 4);
 		var $spinner = $('#spinner-loader-center');
 		var spinnerHeight = $spinner.outerHeight(true);
-		var spinnerTop = $localVideoWrap.offset().top + (localVideoHeight - spinnerHeight)/2 - spinnerHeight/2;
-		$spinner.css({top: '50%', left: '50%', "margin-top":'-40px', "margin-left":'-40px'});
+		var spinnerTop = $localVideoWrap.offset().top + (localVideoHeight - spinnerHeight) / 2 - spinnerHeight / 2;
+		$spinner.css({
+			top: '50%',
+			left: '50%',
+			"margin-top": '-40px',
+			"margin-left": '-40px'
+		});
 	}
 }
 
@@ -223,31 +289,24 @@ function joinedRoom() {
 
 function addRemoteVideo(stream) {
 	_hasRemoteVideo = true;
-	
 	console.log("Room.addRemoteVideo " + stream);
 	// $("#remote-video").attr({ "src": window.URL.createObjectURL(stream), "autoplay": "autoplay" });
-	
 	// Remove old video objects
 	$("#remote-video").remove();
-	
 	// Create new one and add to DOM
 	var $video = $("<video class='video-box' id='remote-video' autoplay></video>");
 	$('#remote-video-wrap').append($video);
-	
-	var remoteVideoElement = attachMediaStream(document.querySelector('#remote-video'), stream); 
+	var remoteVideoElement = attachMediaStream(document.querySelector('#remote-video'), stream);
 	$("#spinner-loader-center").hide();
 	$("#remote-video").show();
 	$('#local-video-wrap').removeClass('single');
-	
 	$("#chat-messages").append("<div class='on-remote-video-message' style='clear:both'>You are now chatting with a random stranger. Say hi!</div>");
-	
 	positionLocalVideo();
 }
 
 function removeRemoteVideo() {
 	_hasRemoteVideo = false;
 	positionLocalVideo();
-	
 	$("#spinner-loader-center").show();
 	$("#remote-video").hide();
 	$('#local-video-wrap').addClass('single');
@@ -287,46 +346,45 @@ function toggleVideo() {
  * When the #avatarsMenu gets focus position the appearing bubble (avatar items) next to #avatarsMenu (menu Icon)
  *
  */
+
 function positionAvatarMenu() {
 	var $avatars = $("#avatarsContent");
 	var $avatarMenuItem = $("#avatarsMenu");
-	var left = $avatarMenuItem.offset().left + $avatarMenuItem.width()/2 - $avatars.width()/2;
+	var left = $avatarMenuItem.offset().left + $avatarMenuItem.width() / 2 - $avatars.width() / 2;
 	var top = $avatarMenuItem.offset().top + $avatarMenuItem.height() + 20;
 	$avatars.css("left", left);
-	$avatars.css("top",top);
+	$avatars.css("top", top);
 }
-
 /**
  * Given an id (1, 2, 3, 4, 5, 6) it returns the HTML element.id for the avatar element in the avatar
  * chooser bubble.
  *
  */
+
 function getElementIdForAvatarId(id) {
-	if (id>=1 && id<=6) {
-		return 'avatar-'+id;
+	if (id >= 1 && id <= 6) {
+		return 'avatar-' + id;
 	} else {
-		console.log("Avatar ID not valid! "+id)
+		console.log("Avatar ID not valid! " + id)
 	}
 }
-
 /**
  * Set avatar to id (1..6)
  *
  */
+
 function setAvatar(elemId, id) {
 	_avatar = id;
 	$(".avatarIcon").removeClass('selected');
-	$("#"+elemId).addClass('selected');
-	$("#avatarsMenu").blur();	
+	$("#" + elemId).addClass('selected');
+	$("#avatarsMenu").blur();
 	$("#avatarsMenu").css('background-image', 'url(../images/avatars/' + id + '.png)');
-	
 	// Update any own existing avatar icons in chat 
 	updateChatAvatarIcons('right', _avatar);
-	
 	// Inform counterpart about avatar update
 	if (_chatReady) {
 		// Inform counterpart about the avatar change
-		_meeting.sendChatMessage('avatar:'+id);	
+		_meeting.sendChatMessage('avatar:' + id);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -406,17 +464,15 @@ function updateChatAvatarIcons(orientation, id) {
 	} else {
 		avatarCells = $(".avatarCell.left");
 	}
-	
-	if (avatarCells && avatarCells.length>0) {
+	if (avatarCells && avatarCells.length > 0) {
 		for (var i = 0; i < avatarCells.length; i++) {
 			var $avatar = $(avatarCells[i]).children(":first");
 			$avatar.removeClass();
 			$avatar.addClass('avatar');
 			$avatar.addClass(getAvatarClassForId(id));
-		}	
+		}
 	}
 }
-
 /**
  * Given an id (1, 2, 3, 4, 5, 6) it returns the corresponding css class for the avatar in the messages field
  *

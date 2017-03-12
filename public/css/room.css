@@ -68,10 +68,10 @@ body {
 	box-sizing:border-box;
 }
 
-#logo {
+.logo {
 	display:inline-block;
 	float:left;
-	width: 20em;
+	width: 15em;
 	height:3em;
 	background-image:url(../images/logo.svg);
 	background-size:contain;
