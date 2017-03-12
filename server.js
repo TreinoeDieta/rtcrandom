@@ -37,9 +37,9 @@ function redirectSec(req, res, next) {
 
 var app = express();
 
-require('./router')(app, socketIoServer, environment);
-
 app.use(redirectSec);
+
+require('./router')(app, socketIoServer, environment);
 
 // Static content (css, js, .png, etc) is placed in /public
 app.use(express.static(__dirname + '/public'));
