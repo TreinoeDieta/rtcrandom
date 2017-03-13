@@ -224,6 +224,7 @@ function toggleOverlay() {
 function start() {
 	toggleOverlay();
 	_meeting.init($("#checkbox-cam").prop("checked"), $("#checkbox-mic").prop("checked"));
+	next();
 }
 ////////////////////////////////////////////////////////////////////////////
 // VIDEO & MICROPHONE
