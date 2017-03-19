@@ -1,21 +1,5 @@
 # rtcrandom
 **RTCRandom** is an online (video)chat website that allows users to socialize with others without the need to register. The service randomly pairs users in one-on-one chat sessions where they chat anonymously using the names "You" and "Stranger". The application uses WebRTC to esatblish video communication between two peers.
 
-### Technology stack
-#### Back-End
-For the back-end [Node.js](https://nodejs.org/en/) is used with [Express](https://expressjs.com) as the web application framework. We use [winston](https://github.com/winstonjs/winston) for logging and [EJS](http://www.embeddedjs.com) as the templating language for our views.
-
-#### Front-End
-For the front-end simple HTML with JavaScript ([jQuery](http://jquery.com), [socket.io](https://socket.io)) and CSS is used. In order to add WebRTC support for browsers like Safari (which does not support WebRTC yet) we used the [Temasys WebRTC adapter](https://github.com/Temasys/AdapterJS). If you do not wish to use such an adapter see release [v0.1-alpha](https://github.com/lucaslouca/rtcrandom/releases/tag/v0.1-alpha).
-
-### Main components
-On the back-end the main component is `server.js` and on the front-end the magic happens in `public/js/room.js`, which is loaded by the `views/room.ejs` view.
-
-### How does the matching work
-When a client first loads the page a bidirectional event-based communication is created between the client's browser and the back-end using [socket.io](https://socket.io). We call this the _default_ communication channel. The _default_ communication channel is used by the client to let the server know, that the client wants to find a new chat partner etc. It also allows the server to inform a client about a new chat partner etc.
-
-So once a client wants to find a new (or initial) communication partner he triggers a _next_ event through the _default_ communication channel, letting the server know about its ID and that he wants a new chat partner. The ID is nothing more than a random hash that is generated once on client-side. The server then puts the client's request into a _queue_ and checks if the queue has at least two requests (note: no client is put twice in the queue). If at least two requests are in the queue (one from a different client and one from our current client), the two clients are polled from the queue. The server then generates a random room name (a six digit alphanumeric string) and sends it to the two clients via the _default_ communication channel.
-
-Once each client receives the new room name, they send a message to the server via the _default_ channel that they want to join the room. The client whose message arrives first at the server _creates_ and _joins_ the room and the second client simply _joins_ the new room. The peer that simply _joins_ the new room gets notified by the server that it just _joined_, so that it can broadcast the message to the _default_ channel that it is a _new participant_ that joined the room and wants to receive a WebRTC _offer_ to open up a peer-to-peer WebRTC communication with the other client in the room (the one that created the room). The room creator client then receives the _new participant_ message in the _default_ channel and creates an _offer_ for the joining peer. This offer will be send via a _private_ communication channel which both clients open using the room name as namespace. The room creator then sends the offer through this channel, which the other peer receives and responds to with an _answer_.  Further WebRTC related communication messages to build the WebRTC peer-to-peer connection between the two clients are also exchanged through the _private_ channel. Once a peer-to-peer connection is establish the video stream and chat messages are exchanged directly between the two clients (no server required).
-
-Note: when a peer disconnects from one peer (because it wants to chat with a different person) the disconnect event is not immediately received by the other peer, due to WebRTC delays. This is why the disconnecting peer also sends a disconnect notification message to the other peer, so that it can update its view. The notification is send using the _private_ channel which tends to be faster.
+### Important Links
+[Development Wiki](/wiki)
